@@ -17,7 +17,7 @@ class Discipline {
 	private:
 	    int id;
 		string discipline;
-
+	friend ostream& operator<<(ostream& , Teacher&);
 };
 
 

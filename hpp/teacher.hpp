@@ -9,11 +9,13 @@ class Teacher {
 	    static int counter;
 	    Teacher(string);
 	    int getID(){ return this->id;};
+	    string getTeacherName(){return this->teacher;};
 
 	    void increment();
 	private:
 	    int id;
 		string teacher;
+	friend ostream& operator<<(ostream& , Teacher&);	
 };
 
 

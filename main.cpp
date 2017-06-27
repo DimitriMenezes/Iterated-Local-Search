@@ -18,6 +18,7 @@
 using namespace std;
 using std::string;
 
+
 vector<string> explode(const string& str, const char& ch) {
     string next;
     vector<string> result;
@@ -49,7 +50,7 @@ vector<string> explode(const string& str, const char& ch) {
 
 int main(){
 
-//PRE PROCESSMENT
+//PRE PROCESSAMENTO
 
 vector<TeacherPreference> TeacherPreferenceSet;
 vector<Requirement> RequirementSet;
@@ -82,8 +83,25 @@ while(!read1.eof()){
     Requirement r(curriculum,discipline,repetition,capacity);
     RequirementSet.push_back(r);
 
-    Discipline d(v[1]);
-    DisciplineSet.push_back(d);
+
+
+
+    //DISCIPLINAS
+    int counter = 0;
+
+    for(std::vector<Discipline>::iterator it = DisciplineSet.begin(); it != DisciplineSet.end(); ++it) {
+        if(it->getDiscipline() == discipline){
+            counter++;
+        }
+    }
+
+    if(counter > 0){
+
+    }else{
+        Discipline d(discipline);
+        DisciplineSet.push_back(d);
+        d.increment();
+    }
 }
 
 //PREFERENCIA
@@ -114,9 +132,22 @@ while(!read2.eof()){
 
     TeacherPreferenceSet.push_back(t);
 
+    //PROFESSORES
+    int counter = 0;
 
-    TeacherSet.push_back(v[0]);
+    for(std::vector<Teacher>::iterator it = TeacherSet.begin(); it != TeacherSet.end(); ++it) {
+        if(it->getTeacherName() == teacher){
+            counter++;
+        }
+    }
 
+    if(counter > 0){
+
+    }else{
+        Teacher currentTeacher(teacher);
+        TeacherSet.push_back(currentTeacher);
+        currentTeacher.increment();
+    }
 }
 //SALAS
 while(!read3.eof()){
@@ -125,6 +156,7 @@ while(!read3.eof()){
 
     Room r(v[0],atoi(v[1].c_str()));
     RoomSet.push_back(r);
+    r.increment();
 }
 
 //CURRICULOS
@@ -153,23 +185,14 @@ while(!read6.eof()){
 vector<Instance> InstanceSet;
 
 for(std::vector<Requirement>::iterator it = RequirementSet.begin(); it != RequirementSet.end(); ++it) {
-    //cout << *it << endl;
-
     for(int i = 1; i <= it->getRepetitions(); i++){
          Instance inst(it->getDiscipline(),it->getCurriculum(),it->getRepetitions(),it->getCapacity());
          InstanceSet.push_back(inst);
     }
-
  }
 
- for(std::vector<Curriculum>::iterator it = CurriculumSet.begin(); it != CurriculumSet.end(); ++it) {
-     //cout << it->getID();
-     //cout << " ";
-     //cout << it->getCurriculum() << endl;
- }
-
+ //GERANDO SOLUCAO INICIAL
  Solution s;
-
  srand((unsigned)time(0));
  for(std::vector<Instance>::iterator it = InstanceSet.begin(); it != InstanceSet.end(); ++it) {
 
@@ -184,7 +207,8 @@ for(std::vector<Requirement>::iterator it = RequirementSet.begin(); it != Requir
         s.addInstanceInRoom(random_room,instanceID);
  }
 
- cout << s;
+
+cout << s;
 
 //END MAIN
 }

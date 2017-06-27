@@ -17,6 +17,7 @@ class Room {
 	    int id;
 		string room;
 		int capacity;
+	friend ostream& operator<<(ostream& , Room&);
 };
 
 
