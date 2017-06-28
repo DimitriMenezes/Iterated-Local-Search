@@ -84,8 +84,6 @@ while(!read1.eof()){
     RequirementSet.push_back(r);
 
 
-
-
     //DISCIPLINAS
     int counter = 0;
 
@@ -113,22 +111,47 @@ while(!read2.eof()){
     string teacher = v[0];
     string discipline = v[1];
     string curriculum = v[2];
+
+    //Primary Preference
     int weight1 = atoi(v[3].c_str());
+    string character = v[4];
+    string hour;
+    vector<int> primaryHours;
+    for(int j = 0; j < character.length(); j ++){
 
-    string hours = v[4] + " "+ v[5] +" "+ v[6];
-    vector<int> ph1;
-    vector<int> ph2 = {1,2,3};
-
-    string aux;
-    for(int i = 0; i < hours.length(); i++){
-       if(hours[i] == '{'){continue;}
-       if(hours[i] == '}'){break;}
-       aux += hours[i];
+        if(character[j] == '{'){}
+        else if(character[j] == ' ' || character[j] == '}'){
+            int value = atoi(hour.c_str());
+            primaryHours.push_back(value);
+            string temp;
+            hour = temp;
+        }
+        else {
+            hour += character[j];
+        }
     }
 
-    vector<string> primaryHours = explode(aux,' ');
+    //Secundary Preference
+    int weight2 = atoi(v[5].c_str());
+    character = v[6];
+    string x;
+    hour = x;
+    vector<int> secundaryHours;
+    for(int j = 0; j < character.length(); j ++){
+        if(character[j] == '{'){}
+        else if(character[j] == ' ' || character[j] == '}'){
+            int value = atoi(hour.c_str());
+            secundaryHours.push_back(value);
+            string temp;
+            hour = temp;
+        }
+        else {
+            hour += character[j];
+        }
+    }
 
-    TeacherPreference t(teacher,discipline,curriculum,10,{10,20,30},9,{5,9});
+
+    TeacherPreference t(teacher,discipline,curriculum,weight1,primaryHours,weight2,secundaryHours);
 
     TeacherPreferenceSet.push_back(t);
 
@@ -198,7 +221,7 @@ for(std::vector<Requirement>::iterator it = RequirementSet.begin(); it != Requir
 
         int random_teacher = rand() % TeacherSet.size() + 1;
         int random_room = rand() % RoomSet.size() + 1;
-        int random_hour = rand() % 40 + 1;
+        int random_hour = rand() % 39;
 
         int instanceID = it->getID();
 
@@ -206,6 +229,12 @@ for(std::vector<Requirement>::iterator it = RequirementSet.begin(); it != Requir
         s.addInstanceInHour(random_hour,instanceID);
         s.addInstanceInRoom(random_room,instanceID);
  }
+
+/*
+for(std::vector<TeacherPreference>::iterator it = TeacherPreferenceSet.begin(); it != TeacherPreferenceSet.end(); ++it) {
+   cout << *it << endl;
+}
+*/
 
 
 cout << s;
