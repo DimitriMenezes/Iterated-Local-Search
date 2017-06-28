@@ -8,6 +8,7 @@ class Teacher {
 	public:
 	    static int counter;
 	    Teacher(string);
+	    Teacher();
 	    int getID(){ return this->id;};
 	    string getTeacherName(){return this->teacher;};
 

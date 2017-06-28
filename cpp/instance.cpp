@@ -3,9 +3,9 @@
 
 int Instance::counter = 0;
 
-Instance::Instance(string curriculum, string discipline, int repetition, int capacity){
-    this->curriculum = curriculum;
+Instance::Instance(string discipline , string curriculum, int repetition, int capacity){
     this->discipline = discipline;
+    this->curriculum = curriculum;
     this->repetition = repetition;
     this->capacity = capacity;
 
@@ -18,9 +18,14 @@ void Instance::increment(){
 }
 
 
-ostream& operator<<(ostream& os , Instance& i)
-{
-    string s = " " ;
-    os << s;
+ostream& operator<<(ostream& os , Instance& i) {
+   
+    os << "Instance ID: ";
+    os << i.getID() << endl;
+    os << "Discipline " << i.getDiscipline() ;
+    os << "Curriculum " << i.getCurriculum() ;
+
+    os << endl ;    
+
     return os;
 }

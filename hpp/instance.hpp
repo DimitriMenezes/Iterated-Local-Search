@@ -8,7 +8,8 @@ class Instance {
 	public:
 	    static int counter;
 	    Instance(string,string,int,int);
-        string getCurriculum();
+        string getCurriculum(){return this->curriculum;};
+        string getDiscipline(){return this->discipline;};
         int getID(){ return this->id;};
         void increment();
 	private:

@@ -21,12 +21,16 @@ public:
 	void addInstanceInRoom(int,int);
 	int getObjective(){return this->objective;};
 
+
+    int objective;
 	vector<std::pair <int,int>> room;
 	vector<std::pair <int,int>> teacher;
 	vector<std::pair <int,int>> hour;
 
+	void setObjective(int objective){this->objective = objective;};
+
 private:
-	int objective;
+
 
 
 friend ostream& operator<<(ostream& , Solution&);

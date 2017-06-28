@@ -4,6 +4,7 @@
 #include <string>
 #include <algorithm>
 #include <stdlib.h>
+#include <typeinfo>
 #include "cpp/requirement.cpp"
 #include "cpp/teacher_preference.cpp"
 #include "cpp/room.cpp"
@@ -12,7 +13,6 @@
 #include "cpp/curriculum.cpp"
 #include "cpp/instance.cpp"
 #include "cpp/solution.cpp"
-
 #include <utility>
 #include <regex>
 using namespace std;
@@ -47,6 +47,7 @@ vector<string> explode(const string& str, const char& ch) {
     return result;
 }
 
+ // cout << typeid(x).name() << endl;
 
 int main(){
 
@@ -150,9 +151,7 @@ while(!read2.eof()){
         }
     }
 
-
     TeacherPreference t(teacher,discipline,curriculum,weight1,primaryHours,weight2,secundaryHours);
-
     TeacherPreferenceSet.push_back(t);
 
     //PROFESSORES
@@ -206,7 +205,6 @@ while(!read6.eof()){
 
 //VECTOR DE ALOCACAÇAO DE AULAS
 vector<Instance> InstanceSet;
-
 for(std::vector<Requirement>::iterator it = RequirementSet.begin(); it != RequirementSet.end(); ++it) {
     for(int i = 1; i <= it->getRepetitions(); i++){
          Instance inst(it->getDiscipline(),it->getCurriculum(),it->getRepetitions(),it->getCapacity());
@@ -218,28 +216,74 @@ for(std::vector<Requirement>::iterator it = RequirementSet.begin(); it != Requir
  Solution s;
  srand((unsigned)time(0));
  for(std::vector<Instance>::iterator it = InstanceSet.begin(); it != InstanceSet.end(); ++it) {
-
-        int random_teacher = rand() % TeacherSet.size() + 1;
+        int random_teacher = -1;
         int random_room = rand() % RoomSet.size() + 1;
         int random_hour = rand() % 39;
-
         int instanceID = it->getID();
 
-        s.addInstanceInTeacher(random_teacher,instanceID);
         s.addInstanceInHour(random_hour,instanceID);
         s.addInstanceInRoom(random_room,instanceID);
- }
 
-/*
-for(std::vector<TeacherPreference>::iterator it = TeacherPreferenceSet.begin(); it != TeacherPreferenceSet.end(); ++it) {
-   cout << *it << endl;
-}
-*/
+        bool teacherAllocated = false;
+        //garantir que o professor pode lecionar a disciplina
+        do{
+            random_teacher = rand() % TeacherSet.size() + 1;
+
+            Teacher currentTeacher;
+            for(int i = 0; i < TeacherSet.size(); i++){
+                if(random_teacher == TeacherSet[i].getID()){
+                    currentTeacher = TeacherSet[i];
+                    break;
+                }
+            }
+
+            for(int j = 0; j < TeacherPreferenceSet.size() ; j++ ){
+                if(currentTeacher.getTeacherName() == TeacherPreferenceSet[j].getTeacherName()){
+                    if(it->getCurriculum() == TeacherPreferenceSet[j].getCurriculum() &&
+                           it->getDiscipline() == TeacherPreferenceSet[j].getDiscipline() ){
+                                    //cout << random_teacher << "professor alocado em " << instanceID << endl;
+                                    teacherAllocated = true;
+                                    s.addInstanceInTeacher(random_teacher,instanceID);
+                                    break;
+                    }
+                }
+            }
+        }while(teacherAllocated == false);
+
+        //Atribuição da função objetivo
+        for(int i = 0; i < TeacherSet.size(); i++){
+            if(random_teacher == TeacherSet[i].getID()){
+                for(int j = 0; j < TeacherPreferenceSet.size(); j++){
+                    if(TeacherSet[i].getTeacherName() == TeacherPreferenceSet[j].getTeacherName()){
+
+                    	vector<int> primaryHours =  TeacherPreferenceSet[j].getMainHours();
+                    	for(int k = 0; k < primaryHours.size(); k++){
+                    		if(primaryHours[k] == random_hour){
+                    			s.objective += TeacherPreferenceSet[j].getMainWeight();
+                    			break;
+                    		}
+                    	}
+
+                    	vector<int> secundaryHours =  TeacherPreferenceSet[j].getSecundaryHours();
+                    	for(int k = 0; k < secundaryHours.size(); k++){
+                    		if(secundaryHours[k] == random_hour){
+	                    		s.objective += TeacherPreferenceSet[j].getSecundaryWeight();
+	                    		break;
+                    		}
+                    	}
+                    }
+                }
+            }
+        }
+
+
+ }
 
 
 cout << s;
 
 //END MAIN
+
 }
 
 
