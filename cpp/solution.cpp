@@ -2,14 +2,11 @@
 
 Solution::Solution(){
     this->objective = 0;
-
 }
 
 void Solution::addInstanceInTeacher(int teacher, int instance){
 	std::pair <int,int> x = std::make_pair (teacher,instance);
-
 	this->teacher.push_back(x);
-
 }
 
 void Solution::addInstanceInHour(int hour, int instance){

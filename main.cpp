@@ -13,6 +13,7 @@
 #include "cpp/curriculum.cpp"
 #include "cpp/instance.cpp"
 #include "cpp/solution.cpp"
+#include "cpp/neighborhood.cpp"
 #include <utility>
 #include <regex>
 using namespace std;
@@ -275,12 +276,12 @@ for(std::vector<Requirement>::iterator it = RequirementSet.begin(); it != Requir
                 }
             }
         }
-
-
  }
 
 
 cout << s;
+
+Neighborhood n(s);
 
 //END MAIN
 
