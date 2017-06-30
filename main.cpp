@@ -211,26 +211,28 @@ for(std::vector<Requirement>::iterator it = RequirementSet.begin(); it != Requir
          Instance inst(it->getDiscipline(),it->getCurriculum(),it->getRepetitions(),it->getCapacity());
          InstanceSet.push_back(inst);
     }
- }
+}
 
  //GERANDO SOLUCAO INICIAL
  Solution s;
  srand((unsigned)time(0));
+
  for(std::vector<Instance>::iterator it = InstanceSet.begin(); it != InstanceSet.end(); ++it) {
         int random_teacher = -1;
         int random_room = rand() % RoomSet.size() + 1;
-        int random_hour = rand() % 39;
+        int random_hour;
+        //int random_hour = rand() % 39;
         int instanceID = it->getID();
 
-        s.addInstanceInHour(random_hour,instanceID);
+        //s.addInstanceInHour(random_hour,instanceID);
         s.addInstanceInRoom(random_room,instanceID);
 
         bool teacherAllocated = false;
+        Teacher currentTeacher;
         //garantir que o professor pode lecionar a disciplina
         do{
             random_teacher = rand() % TeacherSet.size() + 1;
 
-            Teacher currentTeacher;
             for(int i = 0; i < TeacherSet.size(); i++){
                 if(random_teacher == TeacherSet[i].getID()){
                     currentTeacher = TeacherSet[i];
@@ -251,11 +253,43 @@ for(std::vector<Requirement>::iterator it = RequirementSet.begin(); it != Requir
             }
         }while(teacherAllocated == false);
 
+
+        //garantir o horário de preferencia do professor
+        bool allocated = false;
+        do{
+            random_hour = rand() % 39;
+            currentTeacher;
+
+           for(int j = 0; j < TeacherPreferenceSet.size() ; j++ ){
+                if(currentTeacher.getTeacherName() == TeacherPreferenceSet[j].getTeacherName() &&
+                    it->getCurriculum() == TeacherPreferenceSet[j].getCurriculum() &&
+                    it->getDiscipline() == TeacherPreferenceSet[j].getDiscipline() ){
+
+                    auto vector1 = TeacherPreferenceSet[j].getMainHours();
+                    auto vector2 = TeacherPreferenceSet[j].getSecundaryHours();
+                    vector1.insert( vector1.end(), vector2.begin(), vector2.end() );
+
+                    auto possibleHours = vector1;
+
+                    for(int k = 0; k < possibleHours.size(); k++){
+                        if(random_hour == possibleHours[k]){
+                            allocated = true;
+                            s.addInstanceInHour(random_hour,instanceID);
+                            break;
+                        }
+                    }
+                }
+            }
+        }while(allocated == false);
+
+
         //Atribuição da função objetivo
         for(int i = 0; i < TeacherSet.size(); i++){
             if(random_teacher == TeacherSet[i].getID()){
                 for(int j = 0; j < TeacherPreferenceSet.size(); j++){
-                    if(TeacherSet[i].getTeacherName() == TeacherPreferenceSet[j].getTeacherName()){
+                    if(currentTeacher.getTeacherName() == TeacherPreferenceSet[j].getTeacherName() &&
+                    it->getCurriculum() == TeacherPreferenceSet[j].getCurriculum() &&
+                    it->getDiscipline() == TeacherPreferenceSet[j].getDiscipline() ){
 
                     	vector<int> primaryHours =  TeacherPreferenceSet[j].getMainHours();
                     	for(int k = 0; k < primaryHours.size(); k++){
@@ -284,7 +318,6 @@ cout << s;
 Neighborhood n(s);
 
 //END MAIN
-
 }
 
 

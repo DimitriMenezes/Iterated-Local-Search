@@ -8,9 +8,7 @@ Neighborhood::Neighborhood(Solution initialSolution){
 
 
 void Neighborhood::localSearch(){
-	for(int i = 0 ; i < this->initialSolution.room.size() ; i++ ){
 
-	}
 }
 
 
