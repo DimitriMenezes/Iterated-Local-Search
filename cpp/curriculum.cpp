@@ -2,6 +2,10 @@
 
 int Curriculum::counter = 1;
 
+Curriculum::Curriculum(){
+	
+}
+
 Curriculum::Curriculum(string curriculum){
 	this->id = counter;
     this->curriculum = curriculum;

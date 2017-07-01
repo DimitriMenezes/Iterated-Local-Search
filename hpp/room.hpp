@@ -7,6 +7,7 @@ class Room {
 	public:
 	    static int counter;
 	    Room(string,int);
+	    Room();
 	    string getRoomName(){return room;};
 	    int getRoomCapacity(){return capacity;};
 	    setRoomName(string room){this->room = room;};

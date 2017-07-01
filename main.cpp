@@ -14,6 +14,9 @@
 #include "cpp/instance.cpp"
 #include "cpp/solution.cpp"
 #include "cpp/neighborhood.cpp"
+#include "cpp/morning_curriculum.cpp"
+#include "cpp/afternoon_curriculum.cpp"
+#include "cpp/evening_curriculum.cpp"
 #include <utility>
 #include <regex>
 using namespace std;
@@ -185,21 +188,21 @@ while(!read3.eof()){
 //CURRICULOS
 while(!read4.eof()){
     read4.getline(buffer,256);
-    Curriculum c(buffer);
+    MorningCurriculum c(buffer);
     CurriculumSet.push_back(c);
     c.increment();
 }
 
 while(!read5.eof()){
     read5.getline(buffer,256);
-    Curriculum c(buffer);
+    AfternoonCurriculum c(buffer);
     CurriculumSet.push_back(c);
     c.increment();
 }
 
 while(!read6.eof()){
     read6.getline(buffer,256);
-    Curriculum c(buffer);
+    EveningCurriculum c(buffer);
     CurriculumSet.push_back(c);
     c.increment();
 }
@@ -218,16 +221,16 @@ for(std::vector<Requirement>::iterator it = RequirementSet.begin(); it != Requir
  srand((unsigned)time(0));
 
  for(std::vector<Instance>::iterator it = InstanceSet.begin(); it != InstanceSet.end(); ++it) {
-        int random_teacher = -1;
-        int random_room = rand() % RoomSet.size() + 1;
+        int random_teacher;
+        int random_room;// = rand() % RoomSet.size() + 1;
         int random_hour;
         //int random_hour = rand() % 39;
         int instanceID = it->getID();
 
         //s.addInstanceInHour(random_hour,instanceID);
-        s.addInstanceInRoom(random_room,instanceID);
 
-        bool teacherAllocated = false;
+
+        bool allocated = false;
         Teacher currentTeacher;
         //garantir que o professor pode lecionar a disciplina
         do{
@@ -245,17 +248,16 @@ for(std::vector<Requirement>::iterator it = RequirementSet.begin(); it != Requir
                     if(it->getCurriculum() == TeacherPreferenceSet[j].getCurriculum() &&
                            it->getDiscipline() == TeacherPreferenceSet[j].getDiscipline() ){
                                     //cout << random_teacher << "professor alocado em " << instanceID << endl;
-                                    teacherAllocated = true;
+                                    allocated = true;
                                     s.addInstanceInTeacher(random_teacher,instanceID);
                                     break;
                     }
                 }
             }
-        }while(teacherAllocated == false);
-
+        }while(allocated == false);
 
         //garantir o horário de preferencia do professor
-        bool allocated = false;
+        allocated = false;
         do{
             random_hour = rand() % 39;
             currentTeacher;
@@ -282,6 +284,25 @@ for(std::vector<Requirement>::iterator it = RequirementSet.begin(); it != Requir
             }
         }while(allocated == false);
 
+        //garantir sala é capaz de comportar a aula
+        allocated = false;
+        Room r;
+        do{
+            random_room = rand() % RoomSet.size() + 1;
+
+            for(int i =0; i < RoomSet.size() ; i++){
+                if(random_room == RoomSet[i].getID()){
+                    r = RoomSet[i];
+                    break;
+                }
+            }
+
+            if(r.getRoomCapacity() >= it->getClassCapacity() ){
+                s.addInstanceInRoom(random_room,instanceID);
+                allocated = true;
+                break;
+            }
+        }while(allocated == false);
 
         //Atribuição da função objetivo
         for(int i = 0; i < TeacherSet.size(); i++){
@@ -312,10 +333,13 @@ for(std::vector<Requirement>::iterator it = RequirementSet.begin(); it != Requir
         }
  }
 
-
 cout << s;
 
 Neighborhood n(s);
+
+
+cout << CurriculumSet[50] ;
+
 
 //END MAIN
 }

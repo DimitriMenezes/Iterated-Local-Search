@@ -2,6 +2,10 @@
 
 int Room::counter = 1;
 
+Room::Room(){
+	
+}
+
 Room::Room(string room, int capacity){
 	this->id = counter;
 	this->room = room;

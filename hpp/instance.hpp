@@ -10,6 +10,7 @@ class Instance {
 	    Instance(string,string,int,int);
         string getCurriculum(){return this->curriculum;};
         string getDiscipline(){return this->discipline;};
+        int getClassCapacity(){return this->capacity;};
         int getID(){ return this->id;};
         void increment();
 	private:

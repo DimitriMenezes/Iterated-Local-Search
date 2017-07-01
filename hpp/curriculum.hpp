@@ -7,12 +7,12 @@ class Curriculum{
 
 public:
     static int counter;
+
+    Curriculum();
     Curriculum(string);
     string getCurriculum(){return this->curriculum;};
     setCurriculum(string curriculum){this->curriculum = curriculum;};
-
     int getID(){ return this->id;};
-
     void increment();
 private:
     int id;
