@@ -6,8 +6,8 @@ using std::string;
 class Room {
 	public:
 	    static int counter;
-	    Room(string,int);
 	    Room();
+	    Room(string,int);
 	    string getRoomName(){return room;};
 	    int getRoomCapacity(){return capacity;};
 	    setRoomName(string room){this->room = room;};

@@ -18,7 +18,6 @@ void Curriculum::increment(){
 
 ostream& operator<<(ostream& os , Curriculum& c)
 {
-    //char ch = c.getID();
     string s = c.getCurriculum() + " | ";
     os << s ;
     os << c.getID();

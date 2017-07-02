@@ -2,6 +2,10 @@
 
 int Discipline::counter = 1;
 
+Discipline::Discipline(){
+	
+}
+
 Discipline::Discipline(string discipline){
 	this->id = counter;
     this->discipline = discipline;

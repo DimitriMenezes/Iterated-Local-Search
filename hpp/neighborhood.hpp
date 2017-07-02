@@ -11,8 +11,6 @@ public:
 	Neighborhood(Solution);
 	void moveSchedule(Solution,int,int,int);
 	void moveRoom(Solution,int,int);
-	void localSearch();
-
 private:
 	Solution initialSolution;
 	std::vector<Solution> solutionSet;

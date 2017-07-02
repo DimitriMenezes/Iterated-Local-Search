@@ -7,7 +7,7 @@ class Discipline {
 
 	public:
 	    static int counter;
-
+	    Discipline();
 	    Discipline(string);
 		string getDiscipline(){return this->discipline;};
 		setDiscipline(string discipline){this->discipline = discipline;};

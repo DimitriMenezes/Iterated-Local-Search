@@ -6,12 +6,6 @@ Neighborhood::Neighborhood(Solution initialSolution){
 	std::cout << "Vizinhaca";
 }
 
-
-void Neighborhood::localSearch(){
-
-}
-
-
 void Neighborhood::moveSchedule(Solution s, int instance, int oldSchedule, int newSchedule){
 
 }

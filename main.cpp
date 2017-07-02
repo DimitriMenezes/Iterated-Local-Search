@@ -4,21 +4,23 @@
 #include <string>
 #include <algorithm>
 #include <stdlib.h>
+#include <utility>
+#include <regex>
 #include <typeinfo>
 #include "cpp/requirement.cpp"
 #include "cpp/teacher_preference.cpp"
 #include "cpp/room.cpp"
 #include "cpp/teacher.cpp"
 #include "cpp/discipline.cpp"
-#include "cpp/curriculum.cpp"
 #include "cpp/instance.cpp"
+#include "cpp/ils.cpp"
 #include "cpp/solution.cpp"
 #include "cpp/neighborhood.cpp"
+#include "cpp/curriculum.cpp"
 #include "cpp/morning_curriculum.cpp"
 #include "cpp/afternoon_curriculum.cpp"
 #include "cpp/evening_curriculum.cpp"
-#include <utility>
-#include <regex>
+
 using namespace std;
 using std::string;
 
@@ -51,8 +53,6 @@ vector<string> explode(const string& str, const char& ch) {
     return result;
 }
 
- // cout << typeid(x).name() << endl;
-
 int main(){
 
 //PRE PROCESSAMENTO
@@ -64,13 +64,13 @@ vector<Curriculum> CurriculumSet;
 vector<Teacher> TeacherSet;
 vector<Discipline> DisciplineSet;
 
-ifstream read1("data/requirement.txt");
-ifstream read2("data/preference.txt");
-ifstream read3("data/rooms.txt");
+ifstream read1("input_data/requirement.txt");
+ifstream read2("input_data/preference.txt");
+ifstream read3("input_data/rooms.txt");
 
-ifstream read4("data/morning_curriculum.txt");
-ifstream read5("data/afternoon_curriculum.txt");
-ifstream read6("data/noon_curriculum.txt");
+ifstream read4("input_data/morning_curriculum.txt");
+ifstream read5("input_data/afternoon_curriculum.txt");
+ifstream read6("input_data/noon_curriculum.txt");
 
 char buffer[256];
 
@@ -216,6 +216,11 @@ for(std::vector<Requirement>::iterator it = RequirementSet.begin(); it != Requir
     }
 }
 
+//Iterated Local Search
+ILS ils(InstanceSet,RequirementSet,TeacherPreferenceSet,RoomSet,TeacherSet,DisciplineSet,CurriculumSet);
+
+
+/*
  //GERANDO SOLUCAO INICIAL
  Solution s;
  srand((unsigned)time(0));
@@ -309,8 +314,8 @@ for(std::vector<Requirement>::iterator it = RequirementSet.begin(); it != Requir
             if(random_teacher == TeacherSet[i].getID()){
                 for(int j = 0; j < TeacherPreferenceSet.size(); j++){
                     if(currentTeacher.getTeacherName() == TeacherPreferenceSet[j].getTeacherName() &&
-                    it->getCurriculum() == TeacherPreferenceSet[j].getCurriculum() &&
-                    it->getDiscipline() == TeacherPreferenceSet[j].getDiscipline() ){
+                        it->getCurriculum() == TeacherPreferenceSet[j].getCurriculum() &&
+                        it->getDiscipline() == TeacherPreferenceSet[j].getDiscipline() ){
 
                     	vector<int> primaryHours =  TeacherPreferenceSet[j].getMainHours();
                     	for(int k = 0; k < primaryHours.size(); k++){
@@ -333,15 +338,39 @@ for(std::vector<Requirement>::iterator it = RequirementSet.begin(); it != Requir
         }
  }
 
-cout << s;
+// Restricao de carga horária máxima
+for(int i = 0; i < TeacherSet.size() ; i++){
+    int teacher = 0;
+    for(int j = 0; j < TeacherPreferenceSet.size() ; j++){
+        for(int k =0; k < RequirementSet.size() ; k++){
+            if(TeacherSet[i].getTeacherName() == TeacherPreferenceSet[j].getTeacherName() &&
+                TeacherPreferenceSet[j].getDiscipline() == RequirementSet[k].getDiscipline() &&
+                TeacherPreferenceSet[j].getCurriculum() == RequirementSet[k].getCurriculum()
 
-Neighborhood n(s);
+                ){
+                  teacher += RequirementSet[k].getRepetitions()*2;
+            }
+        }
+    }
+    if(teacher <= 24){
+        //cout << "Carga horaria minima feita" << i ;
+    }
+}
 
+//checar se tem duas aulas em um mesmo horário
+for(int i = 0; i < CurriculumSet.size(); i++){
+    int counter = 0;
+        for(int j = 0; j < 40 : j++){
+            for(int k = 0; k < InstanceSet.size(); k++){
+                if(CurriculumSet[i].getCurriculum() == InstanceSet[k].getCurriculum() ){
 
-cout << CurriculumSet[50] ;
-
-
-//END MAIN
+                }
+            }
+        }
 }
 
 
+*/
+
+//END MAIN
+}

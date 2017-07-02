@@ -21,7 +21,6 @@ public:
 	void addInstanceInRoom(int,int);
 	int getObjective(){return this->objective;};
 
-
     int objective;
 	vector<std::pair <int,int>> room;
 	vector<std::pair <int,int>> teacher;
