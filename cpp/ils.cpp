@@ -35,7 +35,6 @@ void ILS::start(){
 
     cout << s2;
 
-
 	//Neighborhood n(s1);
 }
 
@@ -43,36 +42,30 @@ void ILS::start(){
 Solution ILS::generateInitialSolution(){
     Solution s;
   	srand((unsigned)time(0));
- 	for(std::vector<Instance>::iterator it = this->InstanceSet.begin(); it != this->InstanceSet.end(); ++it) {
+ 	for(int it = 0; it < InstanceSet.size(); it++) {
         int random_teacher;
         int random_room;
         int random_hour;
-        int instanceID = it->getID();
+        int instanceID = InstanceSet[it].getID();
+        Instance currentInstance = InstanceSet[it];
 
         bool allocated = false;
         Teacher currentTeacher;
         //garantir que o professor pode lecionar a disciplina
         do{
             random_teacher = rand() % this->TeacherSet.size() + 1;
-
-            for(int i = 0; i < this->TeacherSet.size(); i++){
+            for(int i = 0; i < TeacherSet.size(); i++){
                 if(random_teacher == TeacherSet[i].getID()){
                     currentTeacher = TeacherSet[i];
                     break;
                 }
             }
 
-            for(int j = 0; j < this->TeacherPreferenceSet.size() ; j++ ){
-                if(currentTeacher.getTeacherName() == this->TeacherPreferenceSet[j].getTeacherName()){
-                    if(it->getCurriculum() == this->TeacherPreferenceSet[j].getCurriculum() &&
-                           it->getDiscipline() == this->TeacherPreferenceSet[j].getDiscipline() ){
-                                    //cout << random_teacher << "professor alocado em " << instanceID << endl;
-                                    allocated = true;
-                                    s.addInstanceInTeacher(random_teacher,instanceID);
-                                    break;
-                    }
-                }
+            if(restricao5(currentTeacher,currentInstance) == true){
+                s.addInstanceInTeacher(random_teacher,instanceID);
+                allocated = true;
             }
+
         }while(allocated == false);
 
         //garantir o horário de preferencia do professor
@@ -81,79 +74,33 @@ Solution ILS::generateInitialSolution(){
             random_hour = rand() % 39;
             currentTeacher;
 
-           for(int j = 0; j < this->TeacherPreferenceSet.size() ; j++ ){
-                if(currentTeacher.getTeacherName() == this->TeacherPreferenceSet[j].getTeacherName() &&
-                    it->getCurriculum() == this->TeacherPreferenceSet[j].getCurriculum() &&
-                    it->getDiscipline() == this->TeacherPreferenceSet[j].getDiscipline() ){
-
-                    auto vector1 = this->TeacherPreferenceSet[j].getMainHours();
-                    auto vector2 = this->TeacherPreferenceSet[j].getSecundaryHours();
-                    vector1.insert( vector1.end(), vector2.begin(), vector2.end() );
-
-                    auto possibleHours = vector1;
-
-                    for(int k = 0; k < possibleHours.size(); k++){
-                        if(random_hour == possibleHours[k]){
-                            allocated = true;
-                            s.addInstanceInHour(random_hour,instanceID);
-                            break;
-                        }
-                    }
-                }
+            if(restricao3(random_hour,currentTeacher,currentInstance) == true){
+                s.addInstanceInHour(random_hour,instanceID);
+                allocated = true;
             }
         }while(allocated == false);
 
         //garantir sala é capaz de comportar a aula
         allocated = false;
-        Room r;
+        Room currentRoom;
         do{
             random_room = rand() % this->RoomSet.size() + 1;
 
             for(int i =0; i < this->RoomSet.size() ; i++){
                 if(random_room == this->RoomSet[i].getID()){
-                    r = this->RoomSet[i];
+                    currentRoom = this->RoomSet[i];
                     break;
                 }
             }
 
-            if(r.getRoomCapacity() >= it->getClassCapacity() ){
+            if(restricao7(currentRoom,currentInstance) == true){
                 s.addInstanceInRoom(random_room,instanceID);
                 allocated = true;
-                break;
             }
+
         }while(allocated == false);
-
-        //Atribuição da função objetivo
-        /*
-        for(int i = 0; i < this->TeacherSet.size(); i++){
-            if(random_teacher == this->TeacherSet[i].getID()){
-                for(int j = 0; j < this->TeacherPreferenceSet.size(); j++){
-                    if(currentTeacher.getTeacherName() == this->TeacherPreferenceSet[j].getTeacherName() &&
-                        it->getCurriculum() == this->TeacherPreferenceSet[j].getCurriculum() &&
-                        it->getDiscipline() == this->TeacherPreferenceSet[j].getDiscipline() ){
-
-                    	vector<int> primaryHours =  this->TeacherPreferenceSet[j].getMainHours();
-                    	for(int k = 0; k < primaryHours.size(); k++){
-                    		if(primaryHours[k] == random_hour){
-                    			s.objective += this->TeacherPreferenceSet[j].getMainWeight();
-                    			break;
-                    		}
-                    	}
-
-                    	vector<int> secundaryHours =  this->TeacherPreferenceSet[j].getSecundaryHours();
-                    	for(int k = 0; k < secundaryHours.size(); k++){
-                    		if(secundaryHours[k] == random_hour){
-	                    		s.objective += this->TeacherPreferenceSet[j].getSecundaryWeight();
-	                    		break;
-                    		}
-                    	}
-                    }
-                }
-            }
-        
-        }*/
+  
  	}
-
 
     objectiveFunction(s);
 
@@ -163,19 +110,20 @@ Solution ILS::generateInitialSolution(){
 
 Solution ILS::LocalSearch(Solution s){
     //Mudar o horário de todas as aulas
+    Solution result = s;
 
     for(int i = 0; i < InstanceSet.size(); i++){
        for(int j=0;j< s.hour.size();j++){
             if(InstanceSet[i].getID() == s.hour[j].second){
                 int random_hour = rand() % 39;
-                s.hour[j].first = random_hour;
+                result.hour[j].first = random_hour;
             }
        }
     }
 
-    objectiveFunction(s);
-   
-    return s;
+    objectiveFunction(result);
+
+    return AcceptanceCriterion(s,result);
 }
 
 void ILS::Perturbation(){}
@@ -184,8 +132,10 @@ void ILS::Perturbation(){}
 Solution ILS::AcceptanceCriterion(Solution s1, Solution s2){
         if(s1.objective > s2.objective)
             return s1;
-        else
+        else{
+            cout << "Busca local melhorou" ;
             return s2;
+        }
 }
 
 void ILS::objectiveFunction(Solution& s){
@@ -230,4 +180,77 @@ void ILS::objectiveFunction(Solution& s){
             }
         }
     }
+}
+
+// Restricao 2: de carga horária mínima
+bool ILS::restricao2(Teacher currentTeacher){
+
+    bool result = false;
+    int sum = 0;
+    for(int j = 0; j < TeacherPreferenceSet.size() ; j++){
+            for(int k =0; k < RequirementSet.size() ; k++){
+                if(currentTeacher.getTeacherName() == TeacherPreferenceSet[j].getTeacherName() &&
+                    TeacherPreferenceSet[j].getDiscipline() == RequirementSet[k].getDiscipline() &&
+                    TeacherPreferenceSet[j].getCurriculum() == RequirementSet[k].getCurriculum()
+
+                    ){
+                      sum += RequirementSet[k].getRepetitions()*2;
+                }
+            }
+    }
+    if(sum <= 24){
+        result = true;
+    }
+}
+
+// Restrição 3: Preferencia do Professor
+bool ILS::restricao3(int hour,Teacher currentTeacher, Instance it){
+    bool result = false;
+
+    for(int j = 0; j < this->TeacherPreferenceSet.size() ; j++ ){
+        if(currentTeacher.getTeacherName() == this->TeacherPreferenceSet[j].getTeacherName() &&
+            it.getCurriculum() == this->TeacherPreferenceSet[j].getCurriculum() &&
+            it.getDiscipline() == this->TeacherPreferenceSet[j].getDiscipline() ){
+
+                auto vector1 = this->TeacherPreferenceSet[j].getMainHours();
+                auto vector2 = this->TeacherPreferenceSet[j].getSecundaryHours();
+                vector1.insert( vector1.end(), vector2.begin(), vector2.end() );
+
+                auto possibleHours = vector1;
+
+                for(int k = 0; k < possibleHours.size(); k++){
+                    if(hour == possibleHours[k]){
+                        result = true;
+                        break;
+                    }
+                }
+        }
+    }
+
+    return result;
+}
+
+// Restrição 5: Professor possivel
+bool ILS::restricao5(Teacher currentTeacher, Instance currentInstance){
+    bool result = false;
+
+    for(int j = 0; j < this->TeacherPreferenceSet.size() ; j++ ){
+        if(currentTeacher.getTeacherName() == this->TeacherPreferenceSet[j].getTeacherName()){
+            if(currentInstance.getCurriculum() == this->TeacherPreferenceSet[j].getCurriculum() &&
+                currentInstance.getDiscipline() == this->TeacherPreferenceSet[j].getDiscipline() ){
+                result = true;
+                break;
+            }
+        }
+    }
+    return result;
+}
+
+// Restrição 7 : Capacidade da sala
+bool ILS::restricao7(Room r, Instance currentInstance){
+    bool result = false;
+    if(r.getRoomCapacity() >= currentInstance.getClassCapacity() ){                
+        result = true;  
+    }
+    return result;
 }

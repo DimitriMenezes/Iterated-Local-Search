@@ -4,18 +4,18 @@ Solution::Solution(){
     this->objective = 0;
 }
 
-void Solution::addInstanceInTeacher(int teacher, int instance){
-	std::pair <int,int> x = std::make_pair (teacher,instance);
+void Solution::addInstanceInTeacher(int currentTeacher, int instance){
+	std::pair <int,int> x = std::make_pair (currentTeacher,instance);
 	this->teacher.push_back(x);
 }
 
-void Solution::addInstanceInHour(int hour, int instance){
-	std::pair <int,int> x = std::make_pair (hour,instance);
+void Solution::addInstanceInHour(int currentHour, int instance){
+	std::pair <int,int> x = std::make_pair (currentHour,instance);
 	this->hour.push_back(x);
 }
 
-void Solution::addInstanceInRoom(int room , int instance){
-	std::pair <int,int> x = std::make_pair (room,instance);
+void Solution::addInstanceInRoom(int currentRoom , int instance){
+	std::pair <int,int> x = std::make_pair (currentRoom,instance);
 	this->room.push_back(x);
 }
 

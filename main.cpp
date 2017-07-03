@@ -24,7 +24,6 @@
 using namespace std;
 using std::string;
 
-
 vector<string> explode(const string& str, const char& ch) {
     string next;
     vector<string> result;
@@ -168,7 +167,6 @@ while(!read2.eof()){
     }
 
     if(counter > 0){
-
     }else{
         Teacher currentTeacher(teacher);
         TeacherSet.push_back(currentTeacher);
@@ -218,159 +216,6 @@ for(std::vector<Requirement>::iterator it = RequirementSet.begin(); it != Requir
 
 //Iterated Local Search
 ILS ils(InstanceSet,RequirementSet,TeacherPreferenceSet,RoomSet,TeacherSet,DisciplineSet,CurriculumSet);
-
-
-/*
- //GERANDO SOLUCAO INICIAL
- Solution s;
- srand((unsigned)time(0));
-
- for(std::vector<Instance>::iterator it = InstanceSet.begin(); it != InstanceSet.end(); ++it) {
-        int random_teacher;
-        int random_room;// = rand() % RoomSet.size() + 1;
-        int random_hour;
-        //int random_hour = rand() % 39;
-        int instanceID = it->getID();
-
-        //s.addInstanceInHour(random_hour,instanceID);
-
-
-        bool allocated = false;
-        Teacher currentTeacher;
-        //garantir que o professor pode lecionar a disciplina
-        do{
-            random_teacher = rand() % TeacherSet.size() + 1;
-
-            for(int i = 0; i < TeacherSet.size(); i++){
-                if(random_teacher == TeacherSet[i].getID()){
-                    currentTeacher = TeacherSet[i];
-                    break;
-                }
-            }
-
-            for(int j = 0; j < TeacherPreferenceSet.size() ; j++ ){
-                if(currentTeacher.getTeacherName() == TeacherPreferenceSet[j].getTeacherName()){
-                    if(it->getCurriculum() == TeacherPreferenceSet[j].getCurriculum() &&
-                           it->getDiscipline() == TeacherPreferenceSet[j].getDiscipline() ){
-                                    //cout << random_teacher << "professor alocado em " << instanceID << endl;
-                                    allocated = true;
-                                    s.addInstanceInTeacher(random_teacher,instanceID);
-                                    break;
-                    }
-                }
-            }
-        }while(allocated == false);
-
-        //garantir o horário de preferencia do professor
-        allocated = false;
-        do{
-            random_hour = rand() % 39;
-            currentTeacher;
-
-           for(int j = 0; j < TeacherPreferenceSet.size() ; j++ ){
-                if(currentTeacher.getTeacherName() == TeacherPreferenceSet[j].getTeacherName() &&
-                    it->getCurriculum() == TeacherPreferenceSet[j].getCurriculum() &&
-                    it->getDiscipline() == TeacherPreferenceSet[j].getDiscipline() ){
-
-                    auto vector1 = TeacherPreferenceSet[j].getMainHours();
-                    auto vector2 = TeacherPreferenceSet[j].getSecundaryHours();
-                    vector1.insert( vector1.end(), vector2.begin(), vector2.end() );
-
-                    auto possibleHours = vector1;
-
-                    for(int k = 0; k < possibleHours.size(); k++){
-                        if(random_hour == possibleHours[k]){
-                            allocated = true;
-                            s.addInstanceInHour(random_hour,instanceID);
-                            break;
-                        }
-                    }
-                }
-            }
-        }while(allocated == false);
-
-        //garantir sala é capaz de comportar a aula
-        allocated = false;
-        Room r;
-        do{
-            random_room = rand() % RoomSet.size() + 1;
-
-            for(int i =0; i < RoomSet.size() ; i++){
-                if(random_room == RoomSet[i].getID()){
-                    r = RoomSet[i];
-                    break;
-                }
-            }
-
-            if(r.getRoomCapacity() >= it->getClassCapacity() ){
-                s.addInstanceInRoom(random_room,instanceID);
-                allocated = true;
-                break;
-            }
-        }while(allocated == false);
-
-        //Atribuição da função objetivo
-        for(int i = 0; i < TeacherSet.size(); i++){
-            if(random_teacher == TeacherSet[i].getID()){
-                for(int j = 0; j < TeacherPreferenceSet.size(); j++){
-                    if(currentTeacher.getTeacherName() == TeacherPreferenceSet[j].getTeacherName() &&
-                        it->getCurriculum() == TeacherPreferenceSet[j].getCurriculum() &&
-                        it->getDiscipline() == TeacherPreferenceSet[j].getDiscipline() ){
-
-                    	vector<int> primaryHours =  TeacherPreferenceSet[j].getMainHours();
-                    	for(int k = 0; k < primaryHours.size(); k++){
-                    		if(primaryHours[k] == random_hour){
-                    			s.objective += TeacherPreferenceSet[j].getMainWeight();
-                    			break;
-                    		}
-                    	}
-
-                    	vector<int> secundaryHours =  TeacherPreferenceSet[j].getSecundaryHours();
-                    	for(int k = 0; k < secundaryHours.size(); k++){
-                    		if(secundaryHours[k] == random_hour){
-	                    		s.objective += TeacherPreferenceSet[j].getSecundaryWeight();
-	                    		break;
-                    		}
-                    	}
-                    }
-                }
-            }
-        }
- }
-
-// Restricao de carga horária máxima
-for(int i = 0; i < TeacherSet.size() ; i++){
-    int teacher = 0;
-    for(int j = 0; j < TeacherPreferenceSet.size() ; j++){
-        for(int k =0; k < RequirementSet.size() ; k++){
-            if(TeacherSet[i].getTeacherName() == TeacherPreferenceSet[j].getTeacherName() &&
-                TeacherPreferenceSet[j].getDiscipline() == RequirementSet[k].getDiscipline() &&
-                TeacherPreferenceSet[j].getCurriculum() == RequirementSet[k].getCurriculum()
-
-                ){
-                  teacher += RequirementSet[k].getRepetitions()*2;
-            }
-        }
-    }
-    if(teacher <= 24){
-        //cout << "Carga horaria minima feita" << i ;
-    }
-}
-
-//checar se tem duas aulas em um mesmo horário
-for(int i = 0; i < CurriculumSet.size(); i++){
-    int counter = 0;
-        for(int j = 0; j < 40 : j++){
-            for(int k = 0; k < InstanceSet.size(); k++){
-                if(CurriculumSet[i].getCurriculum() == InstanceSet[k].getCurriculum() ){
-
-                }
-            }
-        }
-}
-
-
-*/
 
 //END MAIN
 }

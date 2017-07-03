@@ -23,6 +23,14 @@ public:
 
 	void objectiveFunction(Solution&);
 
+	bool restricao2(Teacher);
+
+	bool restricao3(int,Teacher,Instance);
+
+	bool restricao5(Teacher,Instance);
+
+	bool restricao7(Room,Instance);
+
 private:
 	vector<Instance> InstanceSet;
 	vector<Requirement> RequirementSet;
