@@ -31,7 +31,17 @@ void ILS::start(){
 
 	Solution s1 = generateInitialSolution();
     //cout << s1;
+    cout << "Solucao inicial: " ;
+    cout << s1.objective << endl ;
+
     Solution s2 = LocalSearch(s1);
+
+    /*
+        
+    for(int i = 0; i < 100 ; i++){
+        s2 = LocalSearch(s2);
+    } */
+
 
     cout << s2;
 
@@ -109,20 +119,37 @@ Solution ILS::generateInitialSolution(){
 
 
 Solution ILS::LocalSearch(Solution s){
+    int contador = 0;
     //Mudar o horário de todas as aulas
     Solution result = s;
 
-    for(int i = 0; i < InstanceSet.size(); i++){
-       for(int j=0;j< s.hour.size();j++){
-            if(InstanceSet[i].getID() == s.hour[j].second){
-                int random_hour = rand() % 39;
-                result.hour[j].first = random_hour;
+    for(int i = 0; i < s.hour.size() ; i++){
+        for(int j =0; j < s.teacher.size();j++){
+            if(s.hour[i].second == s.teacher[j].second){
+                for(int k =0; k < TeacherSet.size(); k++){
+                    if(s.teacher[j].first == TeacherSet[k].getID() ){
+                        Teacher currentTeacher = TeacherSet[k];
+                        for(int l = 0; l < InstanceSet.size(); l++){
+                            if(InstanceSet[l].getID() == s.hour[i].second){
+                                bool done = false;
+                                do{
+                                    int random_hour = rand() % 39;
+                                    if(restricao3(random_hour,currentTeacher,InstanceSet[l]) == true
+                                        && random_hour != result.hour[j].first ){
+                                        
+                                        result.hour[j].first = random_hour;
+                                        done = true;     
+                                    }
+                                }while(done == false);                               
+                            }
+                        }
+                    }
+                }
             }
-       }
+        }
     }
 
     objectiveFunction(result);
-
     return AcceptanceCriterion(s,result);
 }
 
@@ -130,10 +157,15 @@ void ILS::Perturbation(){}
 
 
 Solution ILS::AcceptanceCriterion(Solution s1, Solution s2){
-        if(s1.objective > s2.objective)
-            return s1;
+        if(s1.objective > s2.objective){
+             cout << "Busca local nao melhorou. Melhor solucao:" ;
+             cout << s1.objective << endl ;
+            return s1;     
+        }    
+        
         else{
-            cout << "Busca local melhorou" ;
+            cout << "Busca local melhorou. Melhor solucao:";
+            cout <<  s2.objective << endl;
             return s2;
         }
 }
