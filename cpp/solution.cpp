@@ -2,6 +2,7 @@
 
 Solution::Solution(){
     this->objective = 0;
+    this->isCandidateSolution = false;
 }
 
 void Solution::addInstanceInTeacher(int currentTeacher, int instance){
@@ -17,6 +18,14 @@ void Solution::addInstanceInHour(int currentHour, int instance){
 void Solution::addInstanceInRoom(int currentRoom , int instance){
 	std::pair <int,int> x = std::make_pair (currentRoom,instance);
 	this->room.push_back(x);
+}
+
+void Solution::moveInstanceToRoom(int currentInstance,int newRoom){
+    for(int i = 0 ; i < room.size(); i++){
+        if(room[i].second == currentInstance){
+            room[i].first = newRoom;
+        }
+    }
 }
 
 ostream& operator<<(ostream& os , Solution& s) {

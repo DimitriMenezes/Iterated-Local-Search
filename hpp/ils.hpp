@@ -31,6 +31,8 @@ public:
 
 	bool restricao7(Room,Instance);
 
+	Solution restricao8(Solution);
+
 private:
 	vector<Instance> InstanceSet;
 	vector<Requirement> RequirementSet;

@@ -37,7 +37,7 @@ void ILS::start(){
     Solution s2 = LocalSearch(s1);
 
     /*
-        
+
     for(int i = 0; i < 100 ; i++){
         s2 = LocalSearch(s2);
     } */
@@ -109,8 +109,10 @@ Solution ILS::generateInitialSolution(){
             }
 
         }while(allocated == false);
-  
+
  	}
+
+    s = restricao8(s);
 
     objectiveFunction(s);
 
@@ -136,11 +138,11 @@ Solution ILS::LocalSearch(Solution s){
                                     int random_hour = rand() % 39;
                                     if(restricao3(random_hour,currentTeacher,InstanceSet[l]) == true
                                         && random_hour != result.hour[j].first ){
-                                        
+
                                         result.hour[j].first = random_hour;
-                                        done = true;     
+                                        done = true;
                                     }
-                                }while(done == false);                               
+                                }while(done == false);
                             }
                         }
                     }
@@ -160,9 +162,9 @@ Solution ILS::AcceptanceCriterion(Solution s1, Solution s2){
         if(s1.objective > s2.objective){
              cout << "Busca local nao melhorou. Melhor solucao:" ;
              cout << s1.objective << endl ;
-            return s1;     
-        }    
-        
+            return s1;
+        }
+
         else{
             cout << "Busca local melhorou. Melhor solucao:";
             cout <<  s2.objective << endl;
@@ -281,8 +283,41 @@ bool ILS::restricao5(Teacher currentTeacher, Instance currentInstance){
 // Restrição 7 : Capacidade da sala
 bool ILS::restricao7(Room r, Instance currentInstance){
     bool result = false;
-    if(r.getRoomCapacity() >= currentInstance.getClassCapacity() ){                
-        result = true;  
+    if(r.getRoomCapacity() >= currentInstance.getClassCapacity() ){
+        result = true;
     }
     return result;
+}
+
+//Restrição 8: estabilidade de salas
+Solution ILS::restricao8(Solution s){
+
+    for(int i =0; i < InstanceSet.size(); i++){
+        for(int j =0; j < InstanceSet.size(); j++){
+            if(i != j){
+                Instance inst1 = InstanceSet[i];
+                Instance inst2 = InstanceSet[j];
+                if(inst1.getDiscipline() == inst2.getDiscipline() &&
+                    inst1.getCurriculum() == inst2.getCurriculum() ){
+                    int room1 = -1;
+                    int room2 = -1;
+                    for(int k = 0; k < s.room.size(); k++){
+                        if(s.room[k].second == inst1.getID()){
+                           room1 = s.room[k].first;
+                        }
+                        else if(s.room[k].second == inst2.getID()){
+                           room2 = s.room[k].first;
+                        }
+                    }
+                    if(room1 != room2){
+                        s.moveInstanceToRoom(inst1.getID(),room1);
+                        s.moveInstanceToRoom(inst2.getID(),room1);
+                    }
+                }
+            }
+        }
+    }
+
+   return s;
+
 }
