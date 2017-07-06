@@ -10,8 +10,8 @@ using std::string;
 class ILS{
 
 public:
-	ILS(vector<Instance>, vector<Requirement>, vector<TeacherPreference>, vector<Room> ,
-		vector<Teacher>, vector<Discipline> , vector<Curriculum>
+	ILS( vector<Instance>, vector<Requirement>, vector<TeacherPreference>, vector<Room> ,
+		 vector<Teacher>, vector<Discipline> , vector<Curriculum>
 	 );
 
 	void start();
@@ -35,6 +35,8 @@ public:
 	bool restricao7(Room,Instance);
 
 	Solution restricao8(Solution);
+
+	bool restricao9(int , Solution, Instance);
 
 private:
 	vector<Instance> InstanceSet;

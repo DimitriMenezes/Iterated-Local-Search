@@ -24,6 +24,7 @@ void Solution::moveInstanceToRoom(int currentInstance,int newRoom){
     for(int i = 0 ; i < room.size(); i++){
         if(room[i].second == currentInstance){
             room[i].first = newRoom;
+            break;
         }
     }
 }

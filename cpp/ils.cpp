@@ -88,9 +88,9 @@ Solution ILS::generateInitialSolution(){
             currentTeacher;
 
             if(restricao3(random_hour,currentTeacher,currentInstance) == true
-                && restricao4(random_hour,random_teacher,s) == true
-                ){
-               // cout << "alocado " << InstanceSet[it] << " horario :" << random_hour  << endl ;
+                || restricao4(random_hour,random_teacher,s) == true  //MUDAR PARA &&
+                && restricao9(random_hour,s,currentInstance) == true ){
+                cout << "alocado " << InstanceSet[it] << " horario :" << random_hour  << endl ;
                 s.addInstanceInHour(random_hour,instanceID);
                 allocated = true;
             }
@@ -129,7 +129,6 @@ Solution ILS::generateInitialSolution(){
  	return s;
 }
 
-
 Solution ILS::LocalSearch(Solution s){
     int contador = 0;
     //Mudar o horário de todas as aulas
@@ -166,7 +165,6 @@ Solution ILS::LocalSearch(Solution s){
 }
 
 void ILS::Perturbation(){}
-
 
 Solution ILS::AcceptanceCriterion(Solution s1, Solution s2){
         if(s1.objective > s2.objective){
@@ -297,26 +295,7 @@ bool ILS::restricao4(int hour, int teacher , Solution s){
         return true;
     else
         return false;
-
-
-
-
-/*
-    for(int i = 0; i < TeacherSet.size() ; i++ ){
-        for(int j = 0; j < hours.size(); j++ ){
-            for(int k = 0; k < teachers.size() ; k++){
-                for(int l = 0; l < InstanceSet.size() ; l++){
-                    if(hours[j].second == teachers[k].second &&
-                       hours[j].second == InstanceSet[l].getID()
-                    ){
-
-                    }
-                }
-            }
-        }
-    }*/
 }
-
 
 // Restrição 5: Professor possivel
 bool ILS::restricao5(Teacher currentTeacher, Instance currentInstance){
@@ -360,8 +339,6 @@ bool ILS::restricao6(int room, int hour , Solution s){
         return false;
 }
 
-
-
 // Restrição 7 : Capacidade da sala
 bool ILS::restricao7(Room r, Instance currentInstance){
     bool result = false;
@@ -401,11 +378,26 @@ Solution ILS::restricao8(Solution s){
     }
 
    return s;
-
 }
 
+bool ILS::restricao9(int random_hour, Solution s, Instance it){
+    int counter = 0;
+    for(int i = 0; i < s.hour.size(); i++){
+        if(s.hour[i].first == random_hour){
+            for(int j = 0; j < InstanceSet.size(); j++){
+                if(s.hour[i].second == InstanceSet[j].getID()
+                   && InstanceSet[j].getCurriculum() == it.getCurriculum() ){
+                    counter++;
 
-bool ILS::restricao9(){
+                }
+            }
+        }
+    }
 
-    
+    //cout << counter << endl;
+
+    if(counter == 0)
+        return true;
+    else
+        return false;
 }

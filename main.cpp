@@ -122,7 +122,6 @@ while(!read2.eof()){
     string hour;
     vector<int> primaryHours;
     for(int j = 0; j < character.length(); j ++){
-
         if(character[j] == '{'){}
         else if(character[j] == ' ' || character[j] == '}'){
             int value = atoi(hour.c_str());
