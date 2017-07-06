@@ -30,7 +30,6 @@ ILS::ILS(vector<Instance> InstanceSet, vector<Requirement> RequirementSet,
 void ILS::start(){
 
 	Solution s1 = generateInitialSolution();
-    //cout << s1;
     cout << "Solucao inicial: " ;
     cout << s1.objective << endl ;
 
@@ -53,14 +52,18 @@ Solution ILS::generateInitialSolution(){
     Solution s;
   	srand((unsigned)time(0));
  	for(int it = 0; it < InstanceSet.size(); it++) {
+
         int random_teacher;
         int random_room;
         int random_hour;
         int instanceID = InstanceSet[it].getID();
+
         Instance currentInstance = InstanceSet[it];
+        Teacher currentTeacher;
+        Room currentRoom;
 
         bool allocated = false;
-        Teacher currentTeacher;
+
         //garantir que o professor pode lecionar a disciplina
         do{
             random_teacher = rand() % this->TeacherSet.size() + 1;
@@ -84,15 +87,20 @@ Solution ILS::generateInitialSolution(){
             random_hour = rand() % 39;
             currentTeacher;
 
-            if(restricao3(random_hour,currentTeacher,currentInstance) == true){
+            if(restricao3(random_hour,currentTeacher,currentInstance) == true
+                && restricao4(random_hour,random_teacher,s) == true
+                ){
+               // cout << "alocado " << InstanceSet[it] << " horario :" << random_hour  << endl ;
                 s.addInstanceInHour(random_hour,instanceID);
                 allocated = true;
             }
+
+
         }while(allocated == false);
 
         //garantir sala é capaz de comportar a aula
         allocated = false;
-        Room currentRoom;
+
         do{
             random_room = rand() % this->RoomSet.size() + 1;
 
@@ -103,7 +111,9 @@ Solution ILS::generateInitialSolution(){
                 }
             }
 
-            if(restricao7(currentRoom,currentInstance) == true){
+            if(restricao7(currentRoom,currentInstance) == true
+               && restricao6(random_room, random_hour, s) == true
+                ){
                 s.addInstanceInRoom(random_room,instanceID);
                 allocated = true;
             }
@@ -264,6 +274,50 @@ bool ILS::restricao3(int hour,Teacher currentTeacher, Instance it){
     return result;
 }
 
+//Restrição 4: garantir que o professor tenha uma ou nenhuma aula em um determinado horário
+bool ILS::restricao4(int hour, int teacher , Solution s){
+    auto hours = s.hour;
+    auto teachers = s.teacher;
+
+    int counter = 0;
+
+    for(int j = 0; j < hours.size(); j++ ){
+        for(int k = 0; k < teachers.size() ; k++){
+            if(hours[j].second == teachers[k].second &&
+                hours[j].first == hour &&
+                teachers[k].first == teacher
+                ){
+                    counter++;
+            }
+        }
+    }
+
+    //significa que pode alocar neste horario
+    if(counter == 0)
+        return true;
+    else
+        return false;
+
+
+
+
+/*
+    for(int i = 0; i < TeacherSet.size() ; i++ ){
+        for(int j = 0; j < hours.size(); j++ ){
+            for(int k = 0; k < teachers.size() ; k++){
+                for(int l = 0; l < InstanceSet.size() ; l++){
+                    if(hours[j].second == teachers[k].second &&
+                       hours[j].second == InstanceSet[l].getID()
+                    ){
+
+                    }
+                }
+            }
+        }
+    }*/
+}
+
+
 // Restrição 5: Professor possivel
 bool ILS::restricao5(Teacher currentTeacher, Instance currentInstance){
     bool result = false;
@@ -279,6 +333,34 @@ bool ILS::restricao5(Teacher currentTeacher, Instance currentInstance){
     }
     return result;
 }
+
+bool ILS::restricao6(int room, int hour , Solution s){
+    auto hours = s.hour;
+    auto rooms = s.room;
+
+    int counter = 0;
+
+    for(int j = 0; j < hours.size(); j++ ){
+        if(hours[j].first == hour){
+            for(int k = 0; k < rooms.size() ; k++){
+                if( rooms[k].first == room && rooms[k].second == hours[j].second){
+                    //cout << "Sala: " << room << " HORA " << hour << " Instance " << hours[j].second << endl;
+                    counter++;
+                }
+            }
+        }
+    }
+
+    //cout << counter << endl ;
+
+    //significa que pode alocar nesta sala
+    if(counter == 0)
+        return true;
+    else
+        return false;
+}
+
+
 
 // Restrição 7 : Capacidade da sala
 bool ILS::restricao7(Room r, Instance currentInstance){
@@ -320,4 +402,10 @@ Solution ILS::restricao8(Solution s){
 
    return s;
 
+}
+
+
+bool ILS::restricao9(){
+
+    
 }

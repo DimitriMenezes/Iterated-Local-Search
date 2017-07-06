@@ -9,7 +9,6 @@ using std::string;
 
 class ILS{
 
-
 public:
 	ILS(vector<Instance>, vector<Requirement>, vector<TeacherPreference>, vector<Room> ,
 		vector<Teacher>, vector<Discipline> , vector<Curriculum>
@@ -27,7 +26,11 @@ public:
 
 	bool restricao3(int,Teacher,Instance);
 
+	bool restricao4(int,int,Solution);
+
 	bool restricao5(Teacher,Instance);
+
+	bool restricao6(int,int,Solution);
 
 	bool restricao7(Room,Instance);
 
