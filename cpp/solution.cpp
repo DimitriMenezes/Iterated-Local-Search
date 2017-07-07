@@ -29,6 +29,15 @@ void Solution::moveInstanceToRoom(int currentInstance,int newRoom){
     }
 }
 
+void Solution::moveInstanceToHour(int currentInstance,int newHour){
+    for(int i = 0 ; i < hour.size(); i++){
+        if(hour[i].second == currentInstance){
+            hour[i].first = newHour;
+            break;
+        }
+    }
+}
+
 ostream& operator<<(ostream& os , Solution& s) {
 	int objective = s.getObjective();
 

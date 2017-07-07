@@ -47,7 +47,7 @@ void ILS::start(){
 	//Neighborhood n(s1);
 }
 
-
+/*
 Solution ILS::generateInitialSolution(){
     Solution s;
   	srand((unsigned)time(0));
@@ -87,15 +87,16 @@ Solution ILS::generateInitialSolution(){
             random_hour = rand() % 39;
             currentTeacher;
 
-            if(restricao3(random_hour,currentTeacher,currentInstance) == true
-                || restricao4(random_hour,random_teacher,s) == true  //MUDAR PARA &&
-                && restricao9(random_hour,s,currentInstance) == true ){
+            if( //restricao9(random_hour,s,currentInstance) == true
+                //&&
+                ( restricao4(random_hour,random_teacher,s) == true
+                && restricao3(random_hour,currentTeacher,currentInstance) == true )
+
+                ){
                 cout << "alocado " << InstanceSet[it] << " horario :" << random_hour  << endl ;
                 s.addInstanceInHour(random_hour,instanceID);
                 allocated = true;
             }
-
-
         }while(allocated == false);
 
         //garantir sala é capaz de comportar a aula
@@ -127,6 +128,65 @@ Solution ILS::generateInitialSolution(){
     objectiveFunction(s);
 
  	return s;
+}*/
+
+Solution ILS::generateInitialSolution(){
+
+     Solution s;
+    srand((unsigned)time(0));
+    for(int it = 0; it < InstanceSet.size(); it++) {
+
+        int random_teacher;
+        int random_room;
+        int random_hour;
+        int instanceID = InstanceSet[it].getID();
+
+        Instance currentInstance = InstanceSet[it];
+        Teacher currentTeacher;
+        Room currentRoom;
+
+        bool allocated = false;
+
+        do{
+            random_teacher = rand() % this->TeacherSet.size() + 1;
+            random_hour = rand() % 39;
+            random_room = rand() % this->RoomSet.size() + 1;
+
+            for(int i = 0; i < TeacherSet.size(); i++){
+                if(random_teacher == TeacherSet[i].getID()){
+                    currentTeacher = TeacherSet[i];
+                    break;
+                }
+            }
+
+            for(int i =0; i < this->RoomSet.size() ; i++){
+                if(random_room == this->RoomSet[i].getID()){
+                    currentRoom = this->RoomSet[i];
+                    break;
+                }
+            }
+
+            if(
+                   restricao4(random_hour,random_teacher,s) == true
+                && restricao3(random_hour,currentTeacher,currentInstance) == true
+                && restricao5(currentTeacher,currentInstance) == true
+                && restricao6(random_room, random_hour, s) == true
+                && restricao7(currentRoom,currentInstance) == true
+                ){
+                    s.addInstanceInTeacher(random_teacher,instanceID);
+                    s.addInstanceInHour(random_hour,instanceID);
+                    s.addInstanceInRoom(random_room,instanceID);
+                    allocated = true;
+                    cout << "alocado " << InstanceSet[it] << " horario :" << random_hour  << endl ;
+            }
+        }while(allocated == false);
+    }
+
+    s = restricao8(s);
+
+    objectiveFunction(s);
+
+    return s;
 }
 
 Solution ILS::LocalSearch(Solution s){
@@ -381,6 +441,7 @@ Solution ILS::restricao8(Solution s){
 }
 
 bool ILS::restricao9(int random_hour, Solution s, Instance it){
+    //cout << "Horario tentado:" << random_hour << endl ;
     int counter = 0;
     for(int i = 0; i < s.hour.size(); i++){
         if(s.hour[i].first == random_hour){

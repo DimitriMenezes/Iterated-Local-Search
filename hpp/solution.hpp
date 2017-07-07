@@ -22,6 +22,7 @@ public:
 	int getObjective(){return this->objective;};
 
 	void moveInstanceToRoom(int,int);
+	void moveInstanceToHour(int,int);
 
     int objective;
     bool isCandidateSolution;
