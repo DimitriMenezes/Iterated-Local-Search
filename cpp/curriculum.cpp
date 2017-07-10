@@ -6,9 +6,10 @@ Curriculum::Curriculum(){
 	
 }
 
-Curriculum::Curriculum(string curriculum){
+Curriculum::Curriculum(string curriculum, string type){
 	this->id = counter;
     this->curriculum = curriculum;
+    this->type = type;
 }
 
 void Curriculum::increment(){

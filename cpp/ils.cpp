@@ -31,9 +31,9 @@ void ILS::start(){
 
 	Solution s1 = generateInitialSolution();
     cout << "Solucao inicial: " ;
-    cout << s1.objective << endl ;
+    cout << s1.objective << endl;
 
-    Solution s2 = LocalSearch(s1);
+    //Solution s2 = LocalSearch(s1);
 
     /*
 
@@ -42,7 +42,7 @@ void ILS::start(){
     } */
 
 
-    cout << s2;
+    //cout << s1;
 
 	//Neighborhood n(s1);
 }
@@ -132,7 +132,7 @@ Solution ILS::generateInitialSolution(){
 
 Solution ILS::generateInitialSolution(){
 
-     Solution s;
+    Solution s;
     srand((unsigned)time(0));
     for(int it = 0; it < InstanceSet.size(); it++) {
 
@@ -167,11 +167,14 @@ Solution ILS::generateInitialSolution(){
             }
 
             if(
-                   restricao4(random_hour,random_teacher,s) == true
-                && restricao3(random_hour,currentTeacher,currentInstance) == true
-                && restricao5(currentTeacher,currentInstance) == true
-                && restricao6(random_room, random_hour, s) == true
-                && restricao7(currentRoom,currentInstance) == true
+                  restricao3(random_hour,currentTeacher,currentInstance) == true
+                  && restricao4(random_hour,random_teacher,s) == true
+                  && restricao5(currentTeacher,currentInstance) == true
+                  && restricao6(random_room, random_hour, s) == true
+                  && restricao7(currentRoom,currentInstance) == true
+                  && ( restricao10(random_room, currentInstance) == true
+
+                    || restricao9(random_hour,s,currentInstance) == true )
                 ){
                     s.addInstanceInTeacher(random_teacher,instanceID);
                     s.addInstanceInHour(random_hour,instanceID);
@@ -205,7 +208,10 @@ Solution ILS::LocalSearch(Solution s){
                                 bool done = false;
                                 do{
                                     int random_hour = rand() % 39;
-                                    if(restricao3(random_hour,currentTeacher,InstanceSet[l]) == true
+                                    cout << "hour" << random_hour << endl;
+                                    if( restricao3(s.hour[i].first,currentTeacher,InstanceSet[l]) == true
+                                        && restricao4(s.hour[i].first,s.teacher[j].first,s) == true
+                                        && restricao5(currentTeacher,InstanceSet[l]) == true
                                         && random_hour != result.hour[j].first ){
 
                                         result.hour[j].first = random_hour;
@@ -441,7 +447,6 @@ Solution ILS::restricao8(Solution s){
 }
 
 bool ILS::restricao9(int random_hour, Solution s, Instance it){
-    //cout << "Horario tentado:" << random_hour << endl ;
     int counter = 0;
     for(int i = 0; i < s.hour.size(); i++){
         if(s.hour[i].first == random_hour){
@@ -455,10 +460,46 @@ bool ILS::restricao9(int random_hour, Solution s, Instance it){
         }
     }
 
-    //cout << counter << endl;
-
     if(counter == 0)
         return true;
     else
         return false;
+}
+
+
+//Garantir que os curriculus da manha serao alocadas na manha.
+bool ILS::restricao10(int hour , Instance it){
+
+    bool result = false;
+
+    Curriculum c;
+    for(int i = 0; i < CurriculumSet.size(); i++){
+        if(CurriculumSet[i].getCurriculum() == it.getCurriculum() ){
+            c = CurriculumSet[i];
+            break;
+        }
+    }
+
+
+    if(c.getCurriculumType() == "MorningCurriculum" &&
+            hour % 8 >= 0 &&
+            hour % 8 <= 2
+        ){
+            cout << 1 << endl;
+            result = true;
+        }
+    else if(c.getCurriculumType() == "AfternoonCurriculum" &&
+            hour % 8 >= 3 &&
+            hour % 8 <= 5
+            ){
+                cout << 2 << endl;
+                result = true;
+            }
+    else if(c.getCurriculumType() == "EveningCurriculum" &&
+            hour % 8 >= 5 &&
+            hour % 8 <= 7 ){
+                cout << 3 << endl;
+                result = true;
+            }
+    return result;
 }

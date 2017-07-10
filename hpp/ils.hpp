@@ -36,7 +36,9 @@ public:
 
 	Solution restricao8(Solution);
 
-	bool restricao9(int , Solution, Instance);
+	bool restricao9(int, Solution, Instance);
+
+	bool restricao10(int, Instance);
 
 private:
 	vector<Instance> InstanceSet;

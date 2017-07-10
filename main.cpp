@@ -17,9 +17,6 @@
 #include "cpp/solution.cpp"
 #include "cpp/neighborhood.cpp"
 #include "cpp/curriculum.cpp"
-#include "cpp/morning_curriculum.cpp"
-#include "cpp/afternoon_curriculum.cpp"
-#include "cpp/evening_curriculum.cpp"
 
 using namespace std;
 using std::string;
@@ -185,21 +182,21 @@ while(!read3.eof()){
 //CURRICULOS
 while(!read4.eof()){
     read4.getline(buffer,256);
-    MorningCurriculum c(buffer);
+    Curriculum c(buffer,"MorningCurriculum");
     CurriculumSet.push_back(c);
     c.increment();
 }
 
 while(!read5.eof()){
     read5.getline(buffer,256);
-    AfternoonCurriculum c(buffer);
+    Curriculum c(buffer,"AfternoonCurriculum");
     CurriculumSet.push_back(c);
     c.increment();
 }
 
 while(!read6.eof()){
     read6.getline(buffer,256);
-    EveningCurriculum c(buffer);
+    Curriculum c(buffer,"EveningCurriculum");
     CurriculumSet.push_back(c);
     c.increment();
 }
