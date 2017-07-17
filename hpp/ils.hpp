@@ -17,7 +17,7 @@ public:
 	void start();
 	Solution generateInitialSolution();
 	Solution LocalSearch(Solution);
-	void Perturbation();
+	void Perturbation(Solution&);
 	Solution AcceptanceCriterion(Solution,Solution);
 
 	void objectiveFunction(Solution&);
