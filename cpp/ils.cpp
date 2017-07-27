@@ -34,10 +34,10 @@ void ILS::start(){
 
     Solution s2 = LocalSearch(s1);
 
-    
+
     for(int i = 0; i < 10 ; i++){
         s2 = LocalSearch(s2);
-    } 
+    }
 
 
     //cout << s1;
@@ -112,11 +112,15 @@ Solution ILS::generateInitialSolution(){
         para toda aula faça
             se aula for desse curriculum entao
                 se essa aula foi alocada em horario sem preferencia do professor entao
-                    selecionar um horario de preferencia do professor para aula
+                    selecionar um horario de maior preferencia do professor para aula
                     se aula pode ser alocada nesse horario entao
                         mover ela para esse horario
-                        calcular funçao objetivo
-                        inserir a solucao local na vizinhança de solucoes
+                        calcular funçao objetivo da solucao atual                       
+                    se nao
+                        selecionar um horario de menor preferencia do professor para aula
+                        se aula pode ser alocada nesse horario entao
+                            mover ela para esse horario
+                            calcular funçao objetivo da solucao atual                              
 */
 Solution ILS::LocalSearch(Solution initialSolution){
     int contador = 0;
@@ -149,6 +153,8 @@ Solution ILS::LocalSearch(Solution initialSolution){
                                         auto vector1 = this->TeacherPreferenceSet[n].getMainHours();
                                         auto vector2 = this->TeacherPreferenceSet[n].getSecundaryHours();
 
+                                        bool alocated = false;
+
                                         for(int n=0; n < vector1.size() ; n++){
                                             if(vector1[n] != localSolution.hour[k].first
 
@@ -163,9 +169,27 @@ Solution ILS::LocalSearch(Solution initialSolution){
                                                 << " para o horario " << vector1[n] << endl ;*/
 
                                                 localSolution.hour[k].first = vector1[n];
-                                                objectiveFunction(localSolution);                                              
+                                                objectiveFunction(localSolution);
+                                                alocated = true;
                                                 break;
                                             }
+                                        }
+
+                                        if(alocated == false){
+                                             for(int n=0; n < vector2.size() ; n++){
+                                                if(vector2[n] != localSolution.hour[k].first
+                                                && restricao4(vector2[n],localSolution.teacher[l].first,localSolution) == true
+                                                && restricao10(vector2[n], currentInstance) == true
+                                                && restricao9(vector2[n],localSolution,currentInstance) == true
+
+                                                ){
+
+                                                localSolution.hour[k].first = vector2[n];
+                                                objectiveFunction(localSolution);
+                                                alocated = true;
+                                                break;
+
+                                             }
                                         }
                                     }
                                 }
@@ -176,11 +200,16 @@ Solution ILS::LocalSearch(Solution initialSolution){
                 }
             }
         }
+        }
     }
-   
+
     return AcceptanceCriterion(initialSolution,localSolution);
 }
 
+/*
+PRECISO:
+VERIFICAR PARA CADA O HORARIO QUEM TEM A MAIOR PREFERENCIA E ALOCAR A AULA NESTE HORARIO
+*/
 void ILS::Perturbation(Solution &initialSolution){}
 
 Solution ILS::AcceptanceCriterion(Solution s1, Solution s2){
@@ -434,7 +463,7 @@ bool ILS::restricao10(int hour , Instance it){
     if(c.getCurriculumType() == "MorningCurriculum" &&
             hour % 8 >= 0 &&
             hour % 8 <= 2
-        ){      
+        ){
             result = true;
         }
     else if(c.getCurriculumType() == "AfternoonCurriculum" &&
@@ -445,7 +474,7 @@ bool ILS::restricao10(int hour , Instance it){
             }
     else if(c.getCurriculumType() == "EveningCurriculum" &&
             hour % 8 >= 5 &&
-            hour % 8 <= 7 ){              
+            hour % 8 <= 7 ){
                 result = true;
             }
     return result;
