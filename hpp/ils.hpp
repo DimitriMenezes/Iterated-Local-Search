@@ -36,8 +36,6 @@ public:
 
 	bool restricao8(int,Instance,Solution);
 
-	//Solution restricao8(Solution);
-
 	bool restricao9(int, Solution, Instance);
 
 	bool restricao10(int, Instance);
@@ -50,6 +48,8 @@ private:
 	vector<Teacher> TeacherSet;
 	vector<Discipline> DisciplineSet;
 	vector<Curriculum> CurriculumSet;
+	
+	vector<std::pair <int,int>> historic;
 
 };
 #endif
