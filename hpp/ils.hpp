@@ -34,7 +34,9 @@ public:
 
 	bool restricao7(Room,Instance);
 
-	Solution restricao8(Solution);
+	bool restricao8(int,Instance,Solution);
+
+	//Solution restricao8(Solution);
 
 	bool restricao9(int, Solution, Instance);
 

@@ -32,16 +32,16 @@ void ILS::start(){
     cout << "Solucao inicial: " ;
     cout << s1.objective << endl;
 
+    /*
     Solution s2 = LocalSearch(s1);
 
 
     for(int i = 0; i < 10 ; i++){
         s2 = LocalSearch(s2);
-    }
+    }*/
 
 
-    //cout << s1;
-	//Neighborhood n(s1);
+    cout << s1;
 }
 
 Solution ILS::generateInitialSolution(){
@@ -85,21 +85,22 @@ Solution ILS::generateInitialSolution(){
                   && restricao5(currentTeacher,currentInstance) == true
                   && restricao6(random_room, random_hour, s) == true
                   && restricao7(currentRoom,currentInstance) == true
+                  && restricao8(random_room, currentInstance, s) == true                
                   && ( restricao3(random_hour,currentTeacher,currentInstance) == true
                   || restricao10(random_hour, currentInstance) == true )
-
                   && restricao9(random_hour,s,currentInstance) == true
+               
                 ){
                     s.addInstanceInTeacher(random_teacher,instanceID);
                     s.addInstanceInHour(random_hour,instanceID);
                     s.addInstanceInRoom(random_room,instanceID);
                     allocated = true;
-                    //cout << "alocado " << InstanceSet[it] << " horario :" << random_hour  << endl ;
+                    cout << "alocado " << currentInstance << " horario :" << random_hour << " sala: " << random_room << endl ;
             }
         }while(allocated == false);
     }
 
-    s = restricao8(s);
+   // s = restricao8(s);
 
     objectiveFunction(s);
 
@@ -115,12 +116,12 @@ Solution ILS::generateInitialSolution(){
                     selecionar um horario de maior preferencia do professor para aula
                     se aula pode ser alocada nesse horario entao
                         mover ela para esse horario
-                        calcular funçao objetivo da solucao atual                       
+                        calcular funçao objetivo da solucao atual
                     se nao
                         selecionar um horario de menor preferencia do professor para aula
                         se aula pode ser alocada nesse horario entao
                             mover ela para esse horario
-                            calcular funçao objetivo da solucao atual                              
+                            calcular funçao objetivo da solucao atual
 */
 Solution ILS::LocalSearch(Solution initialSolution){
     int contador = 0;
@@ -359,6 +360,7 @@ bool ILS::restricao5(Teacher currentTeacher, Instance currentInstance){
     return result;
 }
 
+// Garantir uma unica aula em determinada sala
 bool ILS::restricao6(int room, int hour , Solution s){
     auto hours = s.hour;
     auto rooms = s.room;
@@ -385,7 +387,7 @@ bool ILS::restricao6(int room, int hour , Solution s){
         return false;
 }
 
-// Restrição 7 : Capacidade da sala
+// Restrição 7 : Adequacao e capacidade da sala
 bool ILS::restricao7(Room r, Instance currentInstance){
     bool result = false;
     if(r.getRoomCapacity() >= currentInstance.getClassCapacity() ){
@@ -395,35 +397,38 @@ bool ILS::restricao7(Room r, Instance currentInstance){
 }
 
 //Restrição 8: estabilidade de salas
-Solution ILS::restricao8(Solution s){
+bool ILS::restricao8(int random_room, Instance it, Solution s){
+    bool result = false;
+    int counter = 0;
 
-    for(int i =0; i < InstanceSet.size(); i++){
-        for(int j =0; j < InstanceSet.size(); j++){
-            if(i != j){
-                Instance inst1 = InstanceSet[i];
-                Instance inst2 = InstanceSet[j];
-                if(inst1.getDiscipline() == inst2.getDiscipline() &&
-                    inst1.getCurriculum() == inst2.getCurriculum() ){
-                    int room1 = -1;
-                    int room2 = -1;
-                    for(int k = 0; k < s.room.size(); k++){
-                        if(s.room[k].second == inst1.getID()){
-                           room1 = s.room[k].first;
-                        }
-                        else if(s.room[k].second == inst2.getID()){
-                           room2 = s.room[k].first;
-                        }
-                    }
-                    if(room1 != room2){
-                        s.moveInstanceToRoom(inst1.getID(),room1);
-                        s.moveInstanceToRoom(inst2.getID(),room1);
-                    }
+    for(int i = 0; i < s.room.size(); i++){
+
+       for(int k =0; k < InstanceSet.size(); k++){
+            Instance currentInstance = InstanceSet[k];
+
+            if( s.room[i].second == currentInstance.getID() && it.getID() != currentInstance.getID()
+                && it.getCurriculum() == currentInstance.getCurriculum()
+                && it.getDiscipline() == currentInstance.getDiscipline()
+             ){
+                 counter++;
+                if( it.getCurriculum() == currentInstance.getCurriculum()
+                    && it.getDiscipline() == currentInstance.getDiscipline()
+                    && s.room[i].first == random_room
+                ){  
+                           
+                    result = true;                    
+                    break;
                 }
             }
-        }
+       }
     }
 
-   return s;
+    //significa que ainda nao foi alocado nenhuma aula daquela disciplina
+    if(counter == 0){
+        result = true;
+    } 
+        
+    return result;
 }
 
 bool ILS::restricao9(int random_hour, Solution s, Instance it){
@@ -595,3 +600,36 @@ Solution ILS::generateInitialSolution(){
         }
     }
 */
+
+
+/*
+Solution ILS::restricao8(Solution s){
+
+    for(int i =0; i < InstanceSet.size(); i++){
+        for(int j =0; j < InstanceSet.size(); j++){
+            if(i != j){
+                Instance inst1 = InstanceSet[i];
+                Instance inst2 = InstanceSet[j];
+                if(inst1.getDiscipline() == inst2.getDiscipline() &&
+                    inst1.getCurriculum() == inst2.getCurriculum() ){
+                    int room1 = -1;
+                    int room2 = -1;
+                    for(int k = 0; k < s.room.size(); k++){
+                        if(s.room[k].second == inst1.getID()){
+                           room1 = s.room[k].first;
+                        }
+                        else if(s.room[k].second == inst2.getID()){
+                           room2 = s.room[k].first;
+                        }
+                    }
+                    if(room1 != room2){
+                        s.moveInstanceToRoom(inst1.getID(),room1);
+                        s.moveInstanceToRoom(inst2.getID(),room1);
+                    }
+                }
+            }
+        }
+    }
+
+   return s;
+}*/
