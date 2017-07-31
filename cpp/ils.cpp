@@ -35,8 +35,8 @@ void ILS::start(){
 
     Solution s2 = LocalSearch(s1);
 
-    for(int i = 0; i < 5 ; i++){
-		//s2 = Perturbation(s2);
+    for(int i = 0; i < 10 ; i++){
+		s2 = Perturbation(s2);
         s2 = LocalSearch(s2);
     }
 
@@ -183,7 +183,7 @@ Solution ILS::LocalSearch(Solution initialSolution){
                             Room currentRoom;
                             int room_id;
 
-                            for(int m=0; m < RoomSet.size();m++){
+                            for(int m=0; m < RoomSet.size(); m++){
                                 for(int n=0; n < localSolution.room.size(); n++){
                                     if(localSolution.room[n].second == currentInstance.getID()
                                         && localSolution.room[n].first == RoomSet[m].getID()
@@ -283,66 +283,76 @@ Solution ILS::LocalSearch(Solution initialSolution){
 PRECISO:
 VERIFICAR PARA CADA O HORARIO QUEM TEM A MAIOR PREFERENCIA E ALOCAR A AULA NESTE HORARIO
 */
+
+
+/*ALTERAR A SALA DAS AULAS QUE DERAM CONFLITOS */
 Solution ILS::Perturbation(Solution initialSolution){
+    cout << "entrou na perturbação" << endl;
+
     Solution localSolution = initialSolution;
 
 	for(int i = 0; i < historic.size() ; i++){
+        Instance currentInstance;
 		for(int j = 0; j < InstanceSet.size(); j++){
-			if(InstanceSet[j].getID() == historic[i].second ){
-				Instance currentInstance = InstanceSet[j];
+			if( historic[i].second == InstanceSet[j].getID() ){
+				currentInstance = InstanceSet[j];
+            }
+        }
 
-				//mover ela para outra sala
-				for(int k =0; k < localSolution.room.size(); k++ ){
+		//mover ela para outra sala
+		for(int k =0; k < localSolution.room.size(); k++ ){
 
-					if(currentInstance.getID() == localSolution.room[k].second){
-						bool allocated = false;
-						do{
-							int random_room = rand() % this->RoomSet.size() + 1;
-							Room currentRoom;
+		    if(currentInstance.getID() == localSolution.room[k].second){
+    			bool allocated = false;
+                int hour_id = historic[i].first;
 
-							for(int l =0; l < this->RoomSet.size() ; l++){
-								if(random_room == this->RoomSet[l].getID()){
-									currentRoom = this->RoomSet[l];
-									break;
-								}
-							}
-/*
-                            Teacher currentTeacher;
-                            int teacher_id;
-                            for(int m =0; m < TeacherSet.size(); m++){
-                                for(int n=0; n < localSolution.teacher.size() ; n++){
-                                    if(localSolution.teacher[n].first == TeacherSet[m].getID() ){
-                                         currentTeacher = TeacherSet[m];
-                                         teacher_id = localSolution.teacher[n].first;
-                                         break;
-                                    }
-                                }
-                            }*/
+        		do{
+        			int random_room = rand() % this->RoomSet.size() + 1;
+        			Room currentRoom;
 
-                           int hour_id = historic[i].first;
-
-							if(   // restricao2(currentTeacher)
-                               // && restricao4(hour_id,teacher_id,localSolution) == true
-                                //&& restricao5(currentTeacher,currentInstance) == true
-                                   restricao6(random_room, hour_id, localSolution) == true
-                                && restricao7(currentRoom,currentInstance) == true
-                                //&& restricao8(random_room, currentInstance, localSolution) == true
-                                && restricao10(hour_id, currentInstance) == true
-                                && restricao9(hour_id,localSolution,currentInstance) == true
-
-							){
-                                localSolution.moveInstanceToRoom(random_room, currentInstance.getID() );
-								//localSolution.room[k].first = random_room;
-								allocated = true;
-							}
-
-						}while(allocated == false);
-					}
-				}
-			}
+        		    for(int l =0; l < this->RoomSet.size() ; l++){
+        				if(random_room == this->RoomSet[l].getID()){
+        					currentRoom = this->RoomSet[l];
+        					break;
+        				}
+        			}
+             /*
+                    Teacher currentTeacher;
+                    int teacher_id;
+                    for(int m =0; m < TeacherSet.size(); m++){
+                        for(int n=0; n < localSolution.teacher.size() ; n++){
+                            if(    localSolution.teacher[n].first == TeacherSet[m].getID()
+                                && localSolution.teacher[n].second == currentInstance.getID()
+                            ){
+                                currentTeacher = TeacherSet[m];
+                                teacher_id = localSolution.teacher[n].first;
+                                break;
+                            }
+                        }
+                    }*/                         
+    				
+                    if(   // restricao2(currentTeacher)
+                          // && restricao4(hour_id,teacher_id,localSolution) == true
+                          //&& restricao5(currentTeacher,currentInstance) == true
+                          restricao6(random_room, hour_id, localSolution) == true
+                       && restricao7(currentRoom,currentInstance) == true
+                     //&& restricao8(random_room, currentInstance, localSolution) == true
+                       && restricao10(hour_id, currentInstance) == true
+                       && restricao9(hour_id,localSolution,currentInstance) == true
+        			){
+                        localSolution.moveInstanceToRoom(random_room, currentInstance.getID() );
+        				//localSolution.room[k].first = random_room;
+        				allocated = true;
+        			}
+        		}while(allocated == false);	
+		    }
 		}
 	}
+	
 	cout << "saiu da perturbacao" << endl;
+
+
+    objectiveFunction(localSolution);
 
     return localSolution;
 }

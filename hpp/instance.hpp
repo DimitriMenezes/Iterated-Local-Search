@@ -7,6 +7,7 @@ class Instance {
 
 	public:
 	    static int counter;
+        Instance();
 	    Instance(string,string,int,int);
         string getCurriculum(){return this->curriculum;};
         string getDiscipline(){return this->discipline;};

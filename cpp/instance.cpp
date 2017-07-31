@@ -3,6 +3,12 @@
 
 int Instance::counter = 0;
 
+
+Instance::Instance(){
+    
+}
+
+
 Instance::Instance(string discipline , string curriculum, int repetition, int capacity){
     this->discipline = discipline;
     this->curriculum = curriculum;
