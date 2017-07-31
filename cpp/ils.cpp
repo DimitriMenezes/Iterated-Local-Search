@@ -35,13 +35,36 @@ void ILS::start(){
 
     Solution s2 = LocalSearch(s1);
 
-    for(int i = 0; i < 10 ; i++){
-		Perturbation(s2);
+    for(int i = 0; i < 5 ; i++){
+		//s2 = Perturbation(s2);
         s2 = LocalSearch(s2);
     }
 
     //cout << s1;
 }
+
+
+/*
+procedimento gerarSolucaoInicial(){
+para toda aula faça
+
+    faça
+        boolean aula_alocada = falso
+
+        selecionar professor randomicamente
+        selecionar horario randomicamente
+        selecionar sala randomicamente
+
+        se pode alocar aula para o professor, aula e horario entao
+            alocar aula
+            aula_alocada = verdade
+
+    enquanto (aula_alocada == falso);
+
+    calcular funcao objetivo da solucao
+}
+
+*/
 
 Solution ILS::generateInitialSolution(){
 
@@ -79,8 +102,8 @@ Solution ILS::generateInitialSolution(){
                 }
             }
 
-            if(
-                     restricao4(random_hour,random_teacher,s) == true
+            if(      restricao2(currentTeacher) == true
+                  && restricao4(random_hour,random_teacher,s) == true
                   && restricao5(currentTeacher,currentInstance) == true
                   && restricao6(random_room, random_hour, s) == true
                   && restricao7(currentRoom,currentInstance) == true
@@ -94,7 +117,7 @@ Solution ILS::generateInitialSolution(){
                     s.addInstanceInHour(random_hour,instanceID);
                     s.addInstanceInRoom(random_room,instanceID);
                     allocated = true;
-                    //cout << "alocado " << currentInstance << " horario :" << random_hour << " sala: " << random_room << endl ;
+                    cout << "alocado " << currentInstance << " horario :" << random_hour << " sala: " << random_room << endl ;
             }
         }while(allocated == false);
     }
@@ -107,7 +130,7 @@ Solution ILS::generateInitialSolution(){
 }
 
 
-/*procedimento busca_local(){
+/*procedimento simpleMove(){
 
     para todo curriculum faça
         para toda aula faça
@@ -134,7 +157,6 @@ Solution ILS::LocalSearch(Solution initialSolution){
 	vector<std::pair <int,int>> v;
 	historic = v;
 
-    int contador = 0;
     //Mudar o horário de todas as aulas
     Solution localSolution = initialSolution;
 
@@ -145,6 +167,7 @@ Solution ILS::LocalSearch(Solution initialSolution){
             if(currentCurriculum.getCurriculum() == currentInstance.getCurriculum() ){
                 for(int k = 0; k < localSolution.hour.size() ; k++){
                     for(int l =0; l < localSolution.teacher.size();l++){
+
                         if(localSolution.hour[k].second == localSolution.teacher[l].second
                             && localSolution.hour[k].second == currentInstance.getID()
                             ){
@@ -154,6 +177,21 @@ Solution ILS::LocalSearch(Solution initialSolution){
                                 if(localSolution.teacher[l].first == TeacherSet[m].getID() ){
                                      currentTeacher = TeacherSet[m];
                                      break;
+                                }
+                            }
+
+                            Room currentRoom;
+                            int room_id;
+
+                            for(int m=0; m < RoomSet.size();m++){
+                                for(int n=0; n < localSolution.room.size(); n++){
+                                    if(localSolution.room[n].second == currentInstance.getID()
+                                        && localSolution.room[n].first == RoomSet[m].getID()
+                                    ){
+                                        currentRoom = RoomSet[m];
+                                        room_id = localSolution.room[n].first;
+                                        break;
+                                    }
                                 }
                             }
 
@@ -167,11 +205,17 @@ Solution ILS::LocalSearch(Solution initialSolution){
                                         bool alocated = false;
 
                                         for(int n=0; n < vector1.size() ; n++){
-                                            if(vector1[n] != localSolution.hour[k].first
+                                            int hour_id = vector1[n];
+                                            if(hour_id != localSolution.hour[k].first
 
-                                                && restricao4(vector1[n],localSolution.teacher[l].first,localSolution) == true
-                                                && restricao10(vector1[n], currentInstance) == true
-                                                && restricao9(vector1[n],localSolution,currentInstance) == true
+                                                && restricao2(currentTeacher)
+                                                && restricao4(hour_id,localSolution.teacher[l].first,localSolution) == true
+                                                && restricao5(currentTeacher,currentInstance) == true
+                                                && restricao6(room_id, hour_id, localSolution) == true
+                                                && restricao7(currentRoom,currentInstance) == true
+                                                //&& restricao8(room_id, currentInstance, localSolution) == true
+                                                && restricao10(hour_id, currentInstance) == true
+                                                && restricao9(hour_id,localSolution,currentInstance) == true
 
                                                 ){
 /*
@@ -179,7 +223,10 @@ Solution ILS::LocalSearch(Solution initialSolution){
                                                 << " movida do horario " << localSolution.hour[k].first
                                                 << " para o horario " << vector1[n] << endl ;*/
 
-                                                localSolution.hour[k].first = vector1[n];
+
+                                                localSolution.moveInstanceToHour(currentInstance.getID(),hour_id);
+
+                                                //localSolution.hour[k].first = hour_id;
                                                 objectiveFunction(localSolution);
                                                 alocated = true;
                                                 break;
@@ -188,13 +235,22 @@ Solution ILS::LocalSearch(Solution initialSolution){
 
                                         if(alocated == false){
                                              for(int n=0; n < vector2.size() ; n++){
-                                                if(vector2[n] != localSolution.hour[k].first
-                                                && restricao4(vector2[n],localSolution.teacher[l].first,localSolution) == true
-                                                && restricao10(vector2[n], currentInstance) == true
-                                                && restricao9(vector2[n],localSolution,currentInstance) == true
+                                                int hour_id = vector2[n];
+
+                                                if(hour_id != localSolution.hour[k].first
+                                                && restricao2(currentTeacher)
+                                                && restricao4(hour_id,localSolution.teacher[l].first,localSolution) == true
+                                                && restricao5(currentTeacher,currentInstance) == true
+                                                && restricao6(room_id, hour_id, localSolution) == true
+                                                && restricao7(currentRoom,currentInstance) == true
+                                                //&& restricao8(room_id, currentInstance, localSolution) == true
+                                                && restricao4(hour_id,localSolution.teacher[l].first,localSolution) == true
+                                                && restricao10(hour_id, currentInstance) == true
+                                                && restricao9(hour_id,localSolution,currentInstance) == true
 
                                                 ){
-                                                    localSolution.hour[k].first = vector2[n];
+                                                    localSolution.moveInstanceToHour(currentInstance.getID(),hour_id);
+                                                    //localSolution.hour[k].first = vector2[n];
                                                     objectiveFunction(localSolution);
                                                     alocated = true;
                                                     break;
@@ -203,11 +259,12 @@ Solution ILS::LocalSearch(Solution initialSolution){
                                             }
 
                                             if(alocated == false){
+                                                // mudar a sala
                                                 //historic.push_back(currentInstance.getID());
                                                 std::pair <int,int> x = std::make_pair (localSolution.hour[k].first,currentInstance.getID());
                                                 this->historic.push_back(x);
                                             }
-                                    }
+                                        }
                                 }
                                 //cout << currentInstance.getID() << "Horario alocado nao foi o da preferencia" << endl;
                             }
@@ -226,7 +283,8 @@ Solution ILS::LocalSearch(Solution initialSolution){
 PRECISO:
 VERIFICAR PARA CADA O HORARIO QUEM TEM A MAIOR PREFERENCIA E ALOCAR A AULA NESTE HORARIO
 */
-void ILS::Perturbation(Solution &s){
+Solution ILS::Perturbation(Solution initialSolution){
+    Solution localSolution = initialSolution;
 
 	for(int i = 0; i < historic.size() ; i++){
 		for(int j = 0; j < InstanceSet.size(); j++){
@@ -234,9 +292,9 @@ void ILS::Perturbation(Solution &s){
 				Instance currentInstance = InstanceSet[j];
 
 				//mover ela para outra sala
-				for(int k =0; k < s.room.size(); k++ ){
+				for(int k =0; k < localSolution.room.size(); k++ ){
 
-					if(currentInstance.getID() == s.room[k].second){
+					if(currentInstance.getID() == localSolution.room[k].second){
 						bool allocated = false;
 						do{
 							int random_room = rand() % this->RoomSet.size() + 1;
@@ -248,12 +306,33 @@ void ILS::Perturbation(Solution &s){
 									break;
 								}
 							}
+/*
+                            Teacher currentTeacher;
+                            int teacher_id;
+                            for(int m =0; m < TeacherSet.size(); m++){
+                                for(int n=0; n < localSolution.teacher.size() ; n++){
+                                    if(localSolution.teacher[n].first == TeacherSet[m].getID() ){
+                                         currentTeacher = TeacherSet[m];
+                                         teacher_id = localSolution.teacher[n].first;
+                                         break;
+                                    }
+                                }
+                            }*/
 
-							if( restricao6(random_room, historic[i].first, s) == true
-								&& restricao7(currentRoom,currentInstance) == true
-								//&& restricao8(random_room, currentInstance, s) == true)
+                           int hour_id = historic[i].first;
+
+							if(   // restricao2(currentTeacher)
+                               // && restricao4(hour_id,teacher_id,localSolution) == true
+                                //&& restricao5(currentTeacher,currentInstance) == true
+                                   restricao6(random_room, hour_id, localSolution) == true
+                                && restricao7(currentRoom,currentInstance) == true
+                                //&& restricao8(random_room, currentInstance, localSolution) == true
+                                && restricao10(hour_id, currentInstance) == true
+                                && restricao9(hour_id,localSolution,currentInstance) == true
+
 							){
-								s.room[k].first = random_room;
+                                localSolution.moveInstanceToRoom(random_room, currentInstance.getID() );
+								//localSolution.room[k].first = random_room;
 								allocated = true;
 							}
 
@@ -264,6 +343,8 @@ void ILS::Perturbation(Solution &s){
 		}
 	}
 	cout << "saiu da perturbacao" << endl;
+
+    return localSolution;
 }
 
 Solution ILS::AcceptanceCriterion(Solution s1, Solution s2){
@@ -455,7 +536,6 @@ bool ILS::restricao8(int random_room, Instance it, Solution s){
     int counter = 0;
 
     for(int i = 0; i < s.room.size(); i++){
-
        for(int k =0; k < InstanceSet.size(); k++){
             Instance currentInstance = InstanceSet[k];
 
@@ -504,7 +584,10 @@ bool ILS::restricao9(int random_hour, Solution s, Instance it){
         return false;
 }
 
+//Restricoes 10, 11 e 12
 //Garantir que os curriculus da manha serao alocadas na manha.
+//Garantir que os curriculus da tarde serao alocadas na tarde.
+//Garantir que os curriculus da noite serao alocadas na noite.
 bool ILS::restricao10(int hour , Instance it){
 
     bool result = false;
