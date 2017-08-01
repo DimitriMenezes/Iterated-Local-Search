@@ -49,7 +49,8 @@ private:
 	vector<Discipline> DisciplineSet;
 	vector<Curriculum> CurriculumSet;
 	
-	vector<std::pair <int,int>> historic;
+	//vector<std::pair <int,int>> historic;
+	vector<int> historic;
 
 };
 #endif
