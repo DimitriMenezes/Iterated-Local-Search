@@ -28,21 +28,17 @@ ILS::ILS(vector<Instance> InstanceSet, vector<Requirement> RequirementSet,
 
 void ILS::start(){
 
-	Solution s1 = generateInitialSolution();
+	Solution initialSolution = generateInitialSolution();
     cout << "Solucao inicial: " ;
-    cout << s1.objective << endl;
+    cout << initialSolution.objective << endl;
 
-
-    Solution s2 = LocalSearch(s1);
-    //s2 = Perturbation(s2);
-
-    //cout << "------------" << endl ;
-    //cout << "Solucao apos perturbacao: " << s2.objective << endl ;
-    //cout << s2 << endl ;
+    Solution localOptimum = LocalSearch(initialSolution);
 
     for(int i = 0; i < 10 ; i++){
-		s2 = Perturbation(s2);
-        s2 = LocalSearch(s2);
+		localOptimum = Perturbation(localOptimum);
+        localOptimum = LocalSearch(localOptimum);
+        cout << "Solucao corrente: " ;
+        cout <<  localOptimum.objective << endl;
     }
 
     //cout << s1;
@@ -122,7 +118,7 @@ Solution ILS::generateInitialSolution(){
                     s.addInstanceInHour(random_hour,instanceID);
                     s.addInstanceInRoom(random_room,instanceID);
                     allocated = true;
-                    cout << "alocado " << currentInstance << " horario :" << random_hour << " sala: " << random_room << endl ;
+                    //cout << "alocado " << currentInstance << " horario :" << random_hour << " sala: " << random_room << endl ;
             }
         }while(allocated == false);
     }
@@ -280,6 +276,7 @@ Solution ILS::LocalSearch(Solution initialSolution){
     }
 	cout << "Quantidade de elementos a serem perturbados" << historic.size() << endl ;
     return AcceptanceCriterion(initialSolution,localSolution);
+    //return localSolution;
 }
 
 /*
@@ -297,14 +294,12 @@ Solution ILS::Perturbation(Solution initialSolution){
 	for(int i = 0; i < historic.size() ; i++){
         Instance currentInstance;
 		for(int j = 0; j < InstanceSet.size(); j++){
-			//if( historic[i].second == InstanceSet[j].getID() ){
             if( historic[i] == InstanceSet[j].getID() ){
 				currentInstance = InstanceSet[j];
                 break;
             }
         }
 
-		//mover ela para outra sala
         int hour_id;
 		for(int k =0; k < localSolution.hour.size(); k++ ){
             if(localSolution.hour[k].second == currentInstance.getID() ){
@@ -313,15 +308,11 @@ Solution ILS::Perturbation(Solution initialSolution){
             }
         }
 
-		    //if(currentInstance.getID() == localSolution.room[k].second){
     	bool allocated = false;
-        //int hour_id = historic[i].first;
 
         do{
         	int random_room = rand() % this->RoomSet.size() + 1;
-            //localSolution.moveInstanceToRoom(currentInstance.getID() , random_room );
-            //allocated = true;
-            //cout << "perturbacao moveu" << currentInstance.getID() << " para " << random_room << endl ;
+            int random_hour = rand() % 39;
 
         	Room currentRoom;
 
@@ -332,39 +323,22 @@ Solution ILS::Perturbation(Solution initialSolution){
         		}
         	}
 
-             /*
-                    Teacher currentTeacher;
-                    int teacher_id;
-                    for(int m =0; m < TeacherSet.size(); m++){
-                        for(int n=0; n < localSolution.teacher.size() ; n++){
-                            if(    localSolution.teacher[n].first == TeacherSet[m].getID()
-                                && localSolution.teacher[n].second == currentInstance.getID()
-                            ){
-                                currentTeacher = TeacherSet[m];
-                                teacher_id = localSolution.teacher[n].first;
-                                break;
-                            }
-                        }
-                    }*/
-
-            if(   // restricao2(currentTeacher)
-                  // && restricao4(hour_id,teacher_id,localSolution) == true
-                  //&& restricao5(currentTeacher,currentInstance) == true
-                   restricao6(random_room, hour_id, localSolution) == true
-                //&& restricao7(currentRoom,currentInstance) == true
-                //&& restricao8(random_room, currentInstance, localSolution) == true
-                //&& restricao10(hour_id, currentInstance) == true
-                //&& restricao9(hour_id,localSolution,currentInstance) == true
+            if(
+                   restricao6(random_room, random_hour, localSolution) == true
+                   && restricao7(currentRoom,currentInstance) == true
+                   && restricao10(random_hour, currentInstance) == true
+                   //&& restricao9(hour_id,localSolution,currentInstance) == true
+                   //&& restricao8(random_room, currentInstance, localSolution) == true
         		){
-                    //cout << "perturbacao moveu" << currentInstance.getID() << " para " << random_room << endl ;
+                    //mover ela para outra sala
+                    cout << "perturbacao moveu" << currentInstance.getID() << " para " << random_room << endl ;
                     localSolution.moveInstanceToRoom(currentInstance.getID() , random_room );
-        			//localSolution.room[k].first = random_room;
-        			allocated = true;
+                    localSolution.moveInstanceToHour(currentInstance.getID(), random_hour);
+        		    allocated = true;
         	}
 
         }while(allocated == false);
-		    //}
-		//}
+
 	}
 
 	cout << "saiu da perturbacao" << endl;
