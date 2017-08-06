@@ -17,8 +17,9 @@ public:
 	void start();
 	Solution generateInitialSolution();
 	Solution LocalSearch(Solution);
+	Solution Perturbation1(Solution);
 	Solution Perturbation(Solution);
-	Solution AcceptanceCriterion(Solution,Solution);
+	Solution AcceptanceCriteria(Solution,Solution);
 
 	void objectiveFunction(Solution&);
 
@@ -48,8 +49,6 @@ private:
 	vector<Teacher> TeacherSet;
 	vector<Discipline> DisciplineSet;
 	vector<Curriculum> CurriculumSet;
-	
-	//vector<std::pair <int,int>> historic;
 	vector<int> historic;
 
 };
