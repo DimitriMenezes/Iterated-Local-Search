@@ -41,6 +41,8 @@ public:
 
 	bool restricao10(int, Instance);
 
+	void printSolution(Solution);
+
 private:
 	vector<Instance> InstanceSet;
 	vector<Requirement> RequirementSet;

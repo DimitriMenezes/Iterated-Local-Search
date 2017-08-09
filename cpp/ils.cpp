@@ -36,15 +36,15 @@ void ILS::start(){
     cout << "-------------------------------------------" << endl;
 
     for(int i = 0; i < 20 ; i++){
-		localOptimum = Perturbation(localOptimum);
+		localOptimum = Perturbation1(localOptimum);
         localOptimum = LocalSearch(localOptimum);
         cout << "Solucao corrente: " ;
         cout <<  localOptimum.objective << endl;
         cout << "-------------------------------------------" << endl;
     }
 
-    cout << localOptimum;
-    
+    printSolution(localOptimum);
+
 }
 
 
@@ -110,8 +110,8 @@ Solution ILS::generateInitialSolution(){
                 }
             }
 
-            if (   restricao2(currentTeacher) == true
-                && restricao5(currentTeacher,currentInstance) == true
+            if (  restricao2(currentTeacher) == true
+                  && restricao5(currentTeacher,currentInstance) == true
                 ) {
                 s.addInstanceInTeacher(random_teacher,instanceID);
                 allocated = true;
@@ -138,7 +138,7 @@ Solution ILS::generateInitialSolution(){
                      restricao4(random_hour,random_teacher,s) == true
                   && restricao6(random_room, random_hour, s) == true
                   && restricao7(currentRoom,currentInstance) == true
-                  && restricao8(random_room, currentInstance, s) == true
+                  //&& restricao8(random_room, currentInstance, s) == true
                   && ( restricao3(random_hour,currentTeacher,currentInstance) == true
                   || restricao10(random_hour, currentInstance) == true )
                   && restricao9(random_hour,s,currentInstance) == true
@@ -182,6 +182,8 @@ Solution ILS::generateInitialSolution(){
                     se aula pode ser alocada nesse horario entao
                         mover ela para esse horario
                         calcular funçao objetivo da solucao atual
+
+    construir historico de conflitos                       
 
 	se a solucao melhorou
 		adotar como solucao candidata
@@ -426,7 +428,7 @@ funcao simpleMove(){
     para toda aula conflitante
         selecionar uma sala randomicamente;
 
-        se aula pode se alocada nessa sala
+        se aula pode ser alocada nessa sala
             mover aula para essa aula
 
 retornar solucao
@@ -659,8 +661,6 @@ bool ILS::restricao6(int room, int hour , Solution s){
         }
     }
 
-    //cout << counter << endl ;
-
     //significa que pode alocar nesta sala
     if(counter == 0)
         return true;
@@ -699,34 +699,7 @@ bool ILS::restricao8(int random_room, Instance it, Solution s){
            result = false;
            break;
         }
-
     }
-
-/*
-       for(int k =0; k < InstanceSet.size(); k++){
-            Instance currentInstance = InstanceSet[k];
-
-            if( s.room[i].second == currentInstance.getID() && it.getID() != currentInstance.getID()
-                && it.getCurriculum() == currentInstance.getCurriculum()
-                && it.getDiscipline() == currentInstance.getDiscipline()
-             ){
-                 counter++;
-                if( it.getCurriculum() == currentInstance.getCurriculum()
-                    && it.getDiscipline() == currentInstance.getDiscipline()
-                    && s.room[i].first == random_room
-                ){
-
-                    result = true;
-                    break;
-                }
-            }
-       }*/
-   // }
-/*
-    //significa que ainda nao foi alocado nenhuma aula daquela disciplina
-    if(counter == 0){
-        result = true;
-    }*/
 
     return result;
 }
@@ -787,3 +760,144 @@ bool ILS::restricao10(int hour , Instance it){
             }
     return result;
 }
+
+
+void ILS::printSolution(Solution s){
+
+    for(int i =0; i < CurriculumSet.size() ; i++){
+
+        Curriculum currentCurriculum = CurriculumSet[i];
+
+        cout << "Curriculum " << currentCurriculum.getCurriculum() << endl;
+
+        int day = 0;
+
+        for(int j = 0; j < 40; j++){
+
+            if(j % 8 == 0) {
+                day++;
+                cout << " "<< endl;
+                if(day == 1){
+                    cout << "SEG"<< endl;
+                }
+                else if(day == 2){
+                    cout << "TER"<< endl;
+                }
+                else if(day == 3){
+                    cout << "QUA"<< endl;
+                }
+                else if(day == 4){
+                    cout << "QUI"<< endl;
+                }
+                else if(day == 5){
+                    cout << "SEX"<< endl;
+                }
+            }
+
+            if(j % 8 == 3)
+                cout << "Almoço"<< endl;
+            if(j % 8 == 6)
+                cout << "Janta"<< endl;
+
+            bool activity = false;
+            Instance currentInstance;
+            Teacher currentTeacher;
+            Room currentRoom;
+            for(int l = 0; l < s.hour.size(); l++){
+                for(int m = 0; m < InstanceSet.size(); m++){
+                    if(InstanceSet[m].getCurriculum() == currentCurriculum.getCurriculum() &&
+                       InstanceSet[m].getID() ==  s.hour[l].second &&
+                       s.hour[l].first == j
+                    ){
+                        activity = true;
+                        currentInstance = InstanceSet[m];
+                        for(int n = 0; n < s.teacher.size(); n++){
+                            if(s.teacher[n].second == currentInstance.getID()){
+                                for(int o = 0; 0 < TeacherSet.size() ; o++){
+                                    if(TeacherSet[o].getID() == s.teacher[n].first){
+                                        currentTeacher = TeacherSet[o];
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        for(int n =0; n < s.room.size(); n++){
+                            if(s.room[n].second == currentInstance.getID()){
+                                for(int o =0; o < RoomSet.size(); o++){
+                                    if(RoomSet[o].getID() == s.room[n].first){
+                                        currentRoom = RoomSet[o];
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+            if(j % 8+1 == 1){
+                cout << "07-09" << "\t" ;
+            }
+            else if(j % 8+1 == 2){
+                cout << "09-11" << "\t" ;
+            }
+            else if(j % 8+1 == 3){
+                cout << "11-13" << "\t" ;
+            }
+            else if(j % 8+1 == 4){
+                cout << "13-15" << "\t" ;
+            }
+            else if(j % 8+1 == 5){
+               cout << "15-17" << "\t" ;
+            }
+            else if(j % 8+1 == 6){
+                cout << "17-19" << "\t" ;
+            }
+            else if(j % 8+1 == 7){
+                cout << "19-21" << "\t" ;
+            }
+            else if(j % 8+1 == 8){
+                cout << "21-23" << "\t" ;
+            }
+
+            if(activity == true)
+                cout << currentRoom.getRoomName() << "\t"
+                << currentInstance.getDiscipline() << "\t" <<
+                currentTeacher.getTeacherName() << endl;
+            else
+                cout << "Free time" << endl;
+        }
+    }
+}
+
+
+
+
+/*  RESTRICAO 8
+       for(int k =0; k < InstanceSet.size(); k++){
+            Instance currentInstance = InstanceSet[k];
+
+            if( s.room[i].second == currentInstance.getID() && it.getID() != currentInstance.getID()
+                && it.getCurriculum() == currentInstance.getCurriculum()
+                && it.getDiscipline() == currentInstance.getDiscipline()
+             ){
+                 counter++;
+                if( it.getCurriculum() == currentInstance.getCurriculum()
+                    && it.getDiscipline() == currentInstance.getDiscipline()
+                    && s.room[i].first == random_room
+                ){
+
+                    result = true;
+                    break;
+                }
+            }
+       }*/
+   // }
+/*
+    //significa que ainda nao foi alocado nenhuma aula daquela disciplina
+    if(counter == 0){
+        result = true;
+    }*/
