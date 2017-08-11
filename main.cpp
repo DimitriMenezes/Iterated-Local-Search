@@ -15,7 +15,6 @@
 #include "cpp/instance.cpp"
 #include "cpp/ils.cpp"
 #include "cpp/solution.cpp"
-#include "cpp/neighborhood.cpp"
 #include "cpp/curriculum.cpp"
 
 using namespace std;

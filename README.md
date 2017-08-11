@@ -1,12 +1,12 @@
 # Iterated-Local-Search
-ILS algorithm to solve Curriculum Based Timetabling Problem of UFS 
+ILS algorithm to solve Curriculum Based Timetabling Problem of Universidade Federal de Sergipe
 
 
 maximize teacher's preference to have a lesson in a specific hour
 
 subject to
 
-minimum number of credits/hours: Each teacher should have at least N classes during a semester
+minimum number of credits/hours: Each teacher should have at least N classes during a week
 
 teacherPreference: Teachers have preference on a hour to a specific curriculum
 

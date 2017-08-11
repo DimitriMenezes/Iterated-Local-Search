@@ -26,9 +26,9 @@ public:
 
     int objective;
     bool isCandidateSolution;
-	vector<std::pair <int,int>> room;
-	vector<std::pair <int,int>> teacher;
-	vector<std::pair <int,int>> hour;
+	vector<std::pair <int,int>> room;     //<room_id, instance_id>
+	vector<std::pair <int,int>> teacher;  //<teacher_id, instance_id>
+	vector<std::pair <int,int>> hour; 	  //<hour, instance_id>
 	void setObjective(int objective){this->objective = objective;};
 
 private:

@@ -3,7 +3,6 @@
 
 #include "../hpp/curriculum.hpp"
 #include "../hpp/solution.hpp"
-#include "../hpp/neighborhood.hpp"
 using namespace std;
 using std::string;
 
@@ -18,28 +17,28 @@ public:
 	Solution generateInitialSolution();
 	Solution LocalSearch(Solution);
 	Solution Perturbation1(Solution);
-	Solution Perturbation(Solution);
+	Solution Perturbation2(Solution);
 	Solution AcceptanceCriteria(Solution,Solution);
 
 	void objectiveFunction(Solution&);
 
-	bool restricao2(Teacher);
+	bool constraint2(Teacher);
 
-	bool restricao3(int,Teacher,Instance);
+	bool constraint3(int,Teacher,Instance);
 
-	bool restricao4(int,int,Solution);
+	bool constraint4(int,int,Solution);
 
-	bool restricao5(Teacher,Instance);
+	bool constraint5(Teacher,Instance);
 
-	bool restricao6(int,int,Solution);
+	bool constraint6(int,int,Solution);
 
-	bool restricao7(Room,Instance);
+	bool constraint7(Room,Instance);
 
-	bool restricao8(int,Instance,Solution);
+	bool constraint8(int,Instance,Solution);
 
-	bool restricao9(int, Solution, Instance);
+	bool constraint9(int, Solution, Instance);
 
-	bool restricao10(int, Instance);
+	bool constraint10(int, Instance);
 
 	void printSolution(Solution);
 
