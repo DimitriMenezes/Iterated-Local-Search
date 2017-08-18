@@ -7,6 +7,8 @@
 #include <utility>
 #include <regex>
 #include <typeinfo>
+#include <chrono>
+#include <ctime>
 #include "../hpp/ils.hpp"
 
 ILS::ILS(vector<Instance> InstanceSet, vector<Requirement> RequirementSet,
@@ -23,7 +25,23 @@ ILS::ILS(vector<Instance> InstanceSet, vector<Requirement> RequirementSet,
 	this->DisciplineSet = DisciplineSet;
 	this->CurriculumSet = CurriculumSet;
 
-	start();
+    //executar ils 50 vezes e cronometrar
+    for(int i = 0; i < 1; i++){
+        std::chrono::time_point<std::chrono::system_clock> inicio, fim;
+        inicio = std::chrono::system_clock::now();
+
+        start();
+
+        fim = std::chrono::system_clock::now();
+
+        std::chrono::duration<double> elapsed_seconds = fim-inicio;
+        std::time_t end_time = std::chrono::system_clock::to_time_t(fim);
+
+        std::cout << "finished computation at " << std::ctime(&end_time)
+              << "elapsed time: " << elapsed_seconds.count() << "s\n";
+
+        cout << "---------------------------" << endl;
+    }
 }
 
 void ILS::start(){
@@ -37,8 +55,9 @@ void ILS::start(){
     cout <<  localOptimum.objective << endl;
     cout << "-------------------------------------------" << endl;
 
-    for(int i = 0; i < 50 ; i++){
-		localOptimum = Perturbation2(localOptimum);
+
+    for(int i = 0; i < 100 ; i++){
+		localOptimum = Perturbation1(localOptimum);
         localOptimum = LocalSearch(localOptimum);
         cout << "Solucao apos busca local" ;
         cout <<  localOptimum.objective << endl;
@@ -184,7 +203,7 @@ Solution ILS::generateInitialSolution(){
                         mover ela para esse horario
                         calcular funçao objetivo da solucao atual
 
-    construir historico de conflitos                       
+    construir historico de conflitos
 
 	se a solucao melhorou
 		adotar como solucao candidata
@@ -366,7 +385,7 @@ procedimento swap()
 
     trocar horarios das duas aulas
 
-    trocar salas das duas aulas ? TESTAR 
+    trocar salas das duas aulas ? TESTAR
 
     retornar solucao
 */
@@ -385,10 +404,11 @@ Solution ILS::Perturbation1(Solution initialSolution){
             }
         }
 
+        // obter uma aula qualquer de mesmo curriculo, sem conflitos
         Instance secondInstance;
         for(int j = 0; j < InstanceSet.size(); j++){
             if( firstInstance.getID() != InstanceSet[j].getID() &&
-                firstInstance.getCurriculum() == InstanceSet[j].getCurriculum()
+                firstInstance.getCurriculum() == InstanceSet[j].getCurriculum()               
              ){
                 secondInstance = InstanceSet[j];
                 break;
@@ -427,28 +447,27 @@ Solution ILS::Perturbation1(Solution initialSolution){
             for(int x =0; x < this->RoomSet.size() ; x++){
                 if(firstRoom == this->RoomSet[x].getID()){
                     currentRoom1 = this->RoomSet[x];
-                    break;                   
+                    break;
                 }
             }
 
             for(int x =0; x < this->RoomSet.size() ; x++){
                 if(secondRoom == this->RoomSet[x].getID()){
                     currentRoom2 = this->RoomSet[x];
-                    break;                   
+                    break;
                 }
             }
 
 
-
-            if(constraint6(firstRoom, secondHour, localSolution) == true &&
+            if(constraint6(firstRoom, firstHour, localSolution) == true &&
                constraint7(currentRoom1,firstInstance) == true &&
-               constraint6(secondRoom, firstHour, localSolution) == true &&
+               constraint6(secondRoom, secondHour, localSolution) == true &&
                constraint7(currentRoom2,secondInstance) == true
-               ){
+            ){
                 localSolution.moveInstanceToHour(firstInstance.getID(),secondHour);
                 localSolution.moveInstanceToHour(secondInstance.getID(),firstHour);
-                localSolution.moveInstanceToRoom(firstInstance.getID(),secondRoom);
-                localSolution.moveInstanceToRoom(secondInstance.getID(),firstRoom);
+                localSolution.moveInstanceToRoom(firstInstance.getID(),firstRoom);
+                localSolution.moveInstanceToRoom(secondInstance.getID(),secondRoom);
                 allocated = true;
             }
 
@@ -625,7 +644,7 @@ bool ILS::constraint3(int hour,Teacher currentTeacher, Instance it){
                 auto vector2 = this->TeacherPreferenceSet[j].getSecundaryHours();
                 vector1.insert( vector1.end(), vector2.begin(), vector2.end() ); //merge dos 2 vetores
 
-                auto possibleHours = vector1; 
+                auto possibleHours = vector1;
 
                 for(int k = 0; k < possibleHours.size(); k++){
                     if(hour == possibleHours[k]){
