@@ -18,6 +18,7 @@ public:
 	Solution LocalSearch(Solution);
 	Solution Perturbation1(Solution);
 	Solution Perturbation2(Solution);
+	Solution Perturbation3(Solution);
 	Solution AcceptanceCriteria(Solution,Solution);
 
 	void objectiveFunction(Solution&);

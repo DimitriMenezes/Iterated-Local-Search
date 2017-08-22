@@ -30,7 +30,7 @@ ILS::ILS(vector<Instance> InstanceSet, vector<Requirement> RequirementSet,
         std::chrono::time_point<std::chrono::system_clock> inicio, fim;
         inicio = std::chrono::system_clock::now();
 
-        start();
+        start(); // ILS
 
         fim = std::chrono::system_clock::now();
 
@@ -57,7 +57,7 @@ void ILS::start(){
 
 
     for(int i = 0; i < 100 ; i++){
-		localOptimum = Perturbation1(localOptimum);
+		localOptimum = Perturbation3(localOptimum);
         localOptimum = LocalSearch(localOptimum);
         cout << "Solucao apos busca local" ;
         cout <<  localOptimum.objective << endl;
@@ -242,7 +242,8 @@ Solution ILS::LocalSearch(Solution initialSolution){
                            localSolution.teacher[l].second == currentInstance.getID()
                          ){
                             currentTeacher = TeacherSet[m];
-                                break;
+                            teacher_id = TeacherSet[m].getID();
+                            break;
                         }
                     }
                 }
@@ -378,7 +379,7 @@ Solution ILS::LocalSearch(Solution initialSolution){
 
 
 /*
-procedimento swap()
+funcao swap()
 
     selecionar uma aula conflitante
     selecionar uma aula qualquer de mesmo curriculo
@@ -389,8 +390,6 @@ procedimento swap()
 
     retornar solucao
 */
-
-
 Solution ILS::Perturbation1(Solution initialSolution){
     Solution localSolution = initialSolution;
 
@@ -481,19 +480,19 @@ Solution ILS::Perturbation1(Solution initialSolution){
     return localSolution;
 }
 
+
 /*
-funcao simpleMove(){
+funcao singleMove(){
     para toda aula conflitante
         selecionar uma sala randomicamente;
+        selecionar um horario randomicamente;
 
-        se aula pode ser alocada nessa sala
-            mover aula para essa aula
+        se nao houver conflitos
+            mover aula para essa aula e horario
 
 retornar solucao
 }
 */
-
-/*ALTERAR A SALA DAS AULAS QUE DERAM CONFLITOS */
 Solution ILS::Perturbation2(Solution initialSolution){
 
     Solution localSolution = initialSolution;
@@ -548,6 +547,81 @@ Solution ILS::Perturbation2(Solution initialSolution){
     objectiveFunction(localSolution);
     return localSolution;
 }
+
+
+// double move
+Solution ILS::Perturbation3(Solution initialSolution){
+    Solution localSolution = initialSolution;
+
+    //obter aula com conflito
+    for(int i = 0; i < historic.size() ; i++){
+        Instance firstInstance;
+        for(int j = 0; j < InstanceSet.size(); j++){
+            if( historic[i] == InstanceSet[j].getID() ){
+                firstInstance = InstanceSet[j];
+                break;
+            }
+        }
+
+        //obter uma aula qualquer de mesmo curriculo, sem conflitos
+        Instance secondInstance;
+        for(int j = 0; j < InstanceSet.size(); j++){
+            if( firstInstance.getID() != InstanceSet[j].getID() &&
+                firstInstance.getCurriculum() == InstanceSet[j].getCurriculum()               
+             ){
+                secondInstance = InstanceSet[j];
+                break;
+            }
+        }
+
+
+        bool allocated = false;
+        do{
+            int random_hour1 = rand() % 39;
+            int random_hour2 = rand() % 39;
+
+            int firstRoom = rand() % this->RoomSet.size() + 1;
+            int secondRoom = rand() % this->RoomSet.size() + 1;
+
+            Room currentRoom1;
+            Room currentRoom2;
+
+            for(int x =0; x < this->RoomSet.size() ; x++){
+                if(firstRoom == this->RoomSet[x].getID()){
+                    currentRoom1 = this->RoomSet[x];
+                    break;
+                }
+            }
+
+            for(int x =0; x < this->RoomSet.size() ; x++){
+                if(secondRoom == this->RoomSet[x].getID()){
+                    currentRoom2 = this->RoomSet[x];
+                    break;
+                }
+            }
+
+            if(constraint6(firstRoom, random_hour1, localSolution) == true &&
+               constraint7(currentRoom1,firstInstance) == true &&
+               constraint6(secondRoom, random_hour2, localSolution) == true &&
+               constraint7(currentRoom2,secondInstance) == true
+            ){
+                localSolution.moveInstanceToHour(firstInstance.getID(),random_hour1);
+                localSolution.moveInstanceToHour(secondInstance.getID(),random_hour2);
+                localSolution.moveInstanceToRoom(firstInstance.getID(),firstRoom);
+                localSolution.moveInstanceToRoom(secondInstance.getID(),secondRoom);
+                allocated = true;
+            }
+
+        }while(allocated == false);
+
+    }
+
+    objectiveFunction(localSolution);
+    cout << "solucao apos perturbacao: " << localSolution.objective << endl;
+
+    return localSolution;
+}
+
 
 Solution ILS::AcceptanceCriteria(Solution s1, Solution s2){
         if(s1.objective >= s2.objective){
@@ -611,7 +685,7 @@ void ILS::objectiveFunction(Solution& s){ //passagem por referencia
     }
 }
 
-// constraint 2: de carga horária mínima
+// constraint 2: de carga horária mínima >= 8 e <= 20
 bool ILS::constraint2(Teacher currentTeacher){
 
     bool result = false;
@@ -626,7 +700,7 @@ bool ILS::constraint2(Teacher currentTeacher){
                 }
             }
     }
-    if(sum <= 24){
+    if(sum <= 20){
         result = true;
     }
 }
@@ -709,8 +783,7 @@ bool ILS::constraint6(int room, int hour , Solution s){
     for(int j = 0; j < hours.size(); j++ ){
         if(hours[j].first == hour){
             for(int k = 0; k < rooms.size() ; k++){
-                if( rooms[k].first == room && rooms[k].second == hours[j].second){
-                    //cout << "Sala: " << room << " HORA " << hour << " Instance " << hours[j].second << endl;
+                if( rooms[k].first == room && rooms[k].second == hours[j].second){                    
                     counter++;
                 }
             }
@@ -928,3 +1001,4 @@ void ILS::printSolution(Solution s){
         }
     }
 }
+
